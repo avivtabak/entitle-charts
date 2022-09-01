@@ -151,8 +151,8 @@ helm upgrade --install entitle-agent-chart ./ \
 #### Adding your app token to Kubernetes secrets:
 
 ```shell
-echo -n '{"entitle-app-token":"<YOUR_APP_TOKEN>"}' > entitle-app-token # The file name must have this name
-kubectl create secret generic entitle-secret --from-file=./entitle-app-token --namespace entitle
+echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret # The file name must have this name
+kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
 ```
 
 You are ready to go!
