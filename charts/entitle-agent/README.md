@@ -116,7 +116,7 @@ cat > trust.json <<ENDOF
       "Condition": {
         "StringEquals": {
           "${OIDC_PROVIDER}:aud": "sts.amazonaws.com",
-          "${OIDC_PROVIDER}:sub": "system:serviceaccount:entitle:entitle-agent"
+          "${OIDC_PROVIDER}:sub": "system:serviceaccount:entitle:entitle-agent-sa"
         }
       }
     }
