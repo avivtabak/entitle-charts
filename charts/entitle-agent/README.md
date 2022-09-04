@@ -33,7 +33,7 @@ helm repo add entitle https://anycred.github.io/entitle-charts/
 
 2. Update kubeconfig:
    ```shell
-    aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2   # (or any other region)
+    aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-1   # (or any other region)
    ```
 
 3. **Notice:** If you installed our IaC then you may skip to the [chart installation part](#chart-installation).
@@ -44,7 +44,7 @@ You can check if you already have the Identity Provider for your cluster using o
 
 - Run the following command:
   ```shell
-    aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text
+  aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text
   ```
 - Alternatively, refer to [IAM Identity Providers](https://console.aws.amazon.com/iamv2/home#/identity_providers) page in AWS Console.
 
@@ -53,16 +53,16 @@ If you don't have an OIDC provider, create new one:
 eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 ```
 
-#### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
+#### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)
 
 <details>
   <summary>Create policy</summary>
-
+    
   ```shell
   ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
   echo $ACCOUNT_ID
 
-  cat > entitle-entitle-agent-chart-policy.json <<ENDOF
+  cat > entitle-agent-policy.json <<ENDOF
   {
       "Version": "2012-10-17",
       "Statement": [
@@ -92,7 +92,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
   }
   ENDOF
 
-  aws iam create-policy --policy-name entitle-entitle-agent-policy --policy-document file://entitle-entitle-agent-policy.json
+  aws iam create-policy --policy-name entitle-agent-policy --policy-document file://entitle-agent-policy.json --tags Key=CreatedBy,Value=Entitle
   ```
 
 </details>
@@ -127,10 +127,9 @@ cat > trust.json <<ENDOF
 }
 ENDOF
 
-aws iam create-role --role-name entitle-entitle-agent-chart-role --assume-role-policy-document file://trust.json --description "entitle entitle-agent access aws"
-aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-entitle-agent-chart-policy
+aws iam create-role --role-name entitle-agent-role --assume-role-policy-document file://trust.json --description "Entitle.IO: Agent's Role" --tags Key=CreatedBy,Value=Entitle
+aws iam attach-role-policy --role-name entitle-agent-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-agent-policy
 ```
-
 </details>
 
 
