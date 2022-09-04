@@ -22,13 +22,14 @@ This Helm chart guide will take you through the installation of Entitle agent on
 ```shell
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
-## Amazon installation
+## AWS installation
 
 #### A. Declare Variables
 
-1. Define your cluser's name:
+1. Define your cluster and namespace names:
    ```shell
-    export CLUSTER_NAME=<your-cluster-name>
+   export CLUSTER_NAME=<your-cluster-name>
+   export NAMESPACE=entitle
    ```
 
 2. Update kubeconfig:
@@ -119,7 +120,7 @@ cat > trust.json <<ENDOF
       "Condition": {
         "StringEquals": {
           "${OIDC_PROVIDER}:aud": "sts.amazonaws.com",
-          "${OIDC_PROVIDER}:sub": "system:serviceaccount:entitle:entitle-agent-sa"
+          "${OIDC_PROVIDER}:sub": "system:serviceaccount:${NAMESPACE}:entitle-agent-sa"
         }
       }
     }
@@ -152,15 +153,21 @@ helm upgrade --install entitle-agent-chart ./ \
     --set datadog.clusterAgent.metricsProvider.enabled=true \
     --set serviceAccount.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
     --set entitleAgent.env.KMS_TYPE="aws_secret_manager" \
-    -n entitle --create-namespace
+    -n $NAMESPACE --create-namespace
 ```
 <br /><br />
 You are ready to go!
 
 ## GCP Installation
-#### A. Workload Identity
+#### A. Declare Variables
+Define your cluster and namespace names:
+```shell
+export CLUSTER_NAME=<your-cluster-name>
+export NAMESPACE=entitle
+```
 
-**Notice:** If you installed our IaC then you may now skip to the [chart installation part](#chart-installation).
+#### B. Workload Identity
+**Notice:** If you installed our IaC then you may now skip to the [chart installation part](#gcp-chart-installation).
 
 Follow the following GCP (GKE) guides:
 - [Google Kubernetes Engine (GKE) > Documentation > Guides > About Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
@@ -170,7 +177,7 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 - `roles/secretmanager.admin`
 - `roles/iam.securityAdmin`
 
-#### B. Update `kubeconfig`
+#### C. Update `kubeconfig`
 
 * If you have installed Entitle's Terraform IaC you simple run the following command:
     ```shell
@@ -181,7 +188,7 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
     ```
 
-#### C. [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+#### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
@@ -192,5 +199,5 @@ helm upgrade --install entitle-agent-chart ./ \
     --set datadog.clusterAgent.metricsProvider.enabled=true \
     --set entitleAgent.env.KMS_TYPE=gcp_secret_manager \
     --set entitleAgent.serviceAccountName=entitle-agent \
-    -n entitle --create-namespace
+    -n $NAMESPACE --create-namespace
 ```
