@@ -140,7 +140,7 @@ Eventually, you can install our Helm chart:
 1. Add _application token_ to your Kubernetes secrets:
     ```shell
     echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
-    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
+    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace $NAMESPACE
     ```
 
 - Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
