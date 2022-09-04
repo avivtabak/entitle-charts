@@ -140,23 +140,23 @@ Eventually, you can install our Helm chart:
 - Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 1. Install the Helm chart:
-```shell
-helm upgrade --install entitle-agent-chart ./ \
-    --set dockerConfigJson="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
-    --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-    --set datadog.clusterAgent.metricsProvider.enabled=true \
-    --set serviceAccount.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
-    --set entitleAgent.env.KMS_TYPE="aws_secret_manager" \
-    -n $NAMESPACE --create-namespace
-```
+    ```shell
+    helm upgrade --install entitle-agent-chart ./ \
+        --set dockerConfigJson="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
+        --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
+        --set datadog.clusterAgent.metricsProvider.enabled=true \
+        --set serviceAccount.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
+        --set entitleAgent.env.KMS_TYPE="aws_secret_manager" \
+        -n $NAMESPACE --create-namespace
+    ```
 2. Add _application token_ to your Kubernetes secrets:
     ```shell
     echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
     kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace $NAMESPACE
     ```
 
-<br /><br />
-You are ready to go!
+
+Congratulations! Entitle's agent has been installed and ou are ready to go!
 
 ## GCP Installation
 #### A. Declare Variables
