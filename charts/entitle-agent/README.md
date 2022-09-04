@@ -1,56 +1,59 @@
 # Entitle Agent Helm Chart
 
 ## Introduction
-
 This Helm chart guide will take you through the installation of Entitle agent on your cluster.
 
-## What the helm comprised of :
-
+##### What will be installed using this Helm chart
 * Keys to pull the docker image of our agent from github container registry.
 * DataDog helm chart that will help us help you :)
 * New namespace.
 * Deployment roles and other kubernetes CRD.
 
-## Prerequisites:
+## Prerequisites
 
-* Kubernetes cluster to run our helm on - Entitle agent needs its own namespace (we create one in the chart) so we can
+* Kubernetes cluster is required to run our Helm on - Entitle agent needs its own namespace (we create one in the chart) so we can
   run with other tools in a friendly manner
-    * **NOTICE:** if you don't have an existing kubernetes cluster it is recommended to use our IAC to deploy one
+    * **NOTICE:** If you don't have an existing Kubernetes cluster it is recommended to use our IAC to deploy one
       including the roles/annotations
 * ability to read and write to KMSs
     * We have our own guide/IAC for each cloud provider in order to give access to the Entitle agent
-
-## First run
-
+## Installation
+### Prepare Installation
 ```shell
-helm dependency update ./
-helm dependency build ./
+helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
-
 ## Amazon installation
 
-### First things first:
+#### A. Declare Variables
 
-1. Define bash variable for `CLUSTER_NAME`:
-   `CLUSTER_NAME=<your-cluster-name>`
+1. Define your cluser's name:
+   ```shell
+    export CLUSTER_NAME=<your-cluster-name>
+   ```
 
 2. Update kubeconfig:
-   `aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2 # Or any other region`
+   ```shell
+    aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2   # (or any other region)
+   ```
 
-**Notice:** If you installed our IAC then you may now skip to the [chart installation part](#chart-installation)
+3. **Notice:** If you installed our IaC then you may skip to the [chart installation part](#chart-installation).
 
-### [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
+#### B. [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
 
-You can check if you already have the identity provider for your cluster using one of the following:
+You can check if you already have the Identity Provider for your cluster using one of the following:
 
-- Run this command:
-  `aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text`
-- Or [here](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/identity_providers).
+- Run the following command:
+  ```shell
+    aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text
+  ```
+- Alternatively, refer to [IAM Identity Providers](https://console.aws.amazon.com/iamv2/home#/identity_providers) page in AWS Console.
 
-If you don't have an OIDC provider, please create new one:
-`eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve`
+If you don't have an OIDC provider, create new one:
+```shell
+eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
+```
 
-### [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
+#### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
 
 <details>
   <summary>Create policy</summary>
@@ -131,11 +134,16 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 </details>
 
 
-**Eventually you can helm install our chart:**
 
-### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+#### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+Eventually, you can install our Helm chart:
+1. Add _application token_ to your Kubernetes secrets:
+    ```shell
+    echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
+    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
+    ```
 
-- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the terraform output if you installed our IAC
+- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
 ```shell
@@ -147,42 +155,34 @@ helm upgrade --install entitle-agent-chart ./ \
     --set entitleAgent.env.KMS_TYPE="aws_secret_manager" \
     -n entitle --create-namespace
 ```
-
-#### Adding your app token to Kubernetes secrets:
-
-```shell
-echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret # The file name must have this name
-kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
-```
-
+<br /><br />
 You are ready to go!
 
-# GCP Installation
+## GCP Installation
+#### A. Workload Identity
 
-## Workload Identity
+**Notice:** If you installed our IaC then you may now skip to the [chart installation part](#chart-installation).
 
-**Notice:** If you installed our IAC then you may now skip to the [chart installation part](#chart-installation)
+Follow the following GCP (GKE) guides:
+- [Google Kubernetes Engine (GKE) > Documentation > Guides > About Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
+- [Google Kubernetes Engine (GKE) > Documentation > Guides > Use Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
 
-Read:
+In the step "**Configure applications to use Workload Identity**", use the following roles:
+- `roles/secretmanager.admin`
+- `roles/iam.securityAdmin`
 
-- https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
+#### B. Update `kubeconfig`
 
-- https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
+* If you have installed Entitle's Terraform IaC you simple run the following command:
+    ```shell
+    gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)
+    ```
+* Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
+    ```shell
+    gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
+    ```
 
-In step **Configure applications to use Workload Identity** use the following roles:
-
-- "roles/secretmanager.admin",
-- "roles/iam.securityAdmin"
-
-## Update kubeconfig:
-
-If you just installed the Terraform you may run:
-`gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)`
-
-Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
-```gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>```
-
-## Chart installation
+#### C. [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
