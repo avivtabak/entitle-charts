@@ -2,10 +2,16 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+nameOverride: "entitle-agent"
+fullnameOverride:
+
 dockerConfigJson: ""
+
 serviceAccount:
   iamrole: ""
+
 entitleAgent:
+  base64Configuration:
   serviceAccountName: "entitle-agent-sa"
   entitleAgentContainer:
     image:
