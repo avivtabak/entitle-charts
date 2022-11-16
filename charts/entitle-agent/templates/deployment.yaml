@@ -32,8 +32,8 @@ spec:
             - name: ENTITLE_JSON_CONFIGURATION
               valueFrom:
                 secretKeyRef:
-                  name: entitle-agent-secret
-                  key: entitle-agent-secret
+                  name: {{ include "entitle-agent.fullname" . }}-secret
+                  key: ENTITLE_JSON_CONFIGURATION
                   optional: false
             - name: KMS_TYPE
               value: {{ .Values.entitleAgent.env.KMS_TYPE }}
