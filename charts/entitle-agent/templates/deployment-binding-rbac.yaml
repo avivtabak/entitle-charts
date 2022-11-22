@@ -10,5 +10,4 @@ roleRef:
   name: '{{ include "entitle-agent.fullname" . }}-deployment'
 subjects:
   - kind: ServiceAccount
-    name: '{{ .Values.entitleAgent.serviceAccountName }}'
-    namespace: '{{ .Release.Namespace }}'
+    name: {{ include "entitle-agent.serviceAccountName" . }}

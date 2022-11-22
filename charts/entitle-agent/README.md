@@ -1,69 +1,78 @@
-# Entitle Agent Helm Chart
+Entitle-agent
+===========
 
-## Introduction
-This Helm chart guide will take you through the installation of Entitle agent on your cluster.
-
-##### What will be installed using this Helm chart
-* Keys to pull the docker image of our agent from github container registry.
-* DataDog helm chart that will help us help you :)
-* New namespace.
-* Deployment roles and other kubernetes CRD.
-
-## Prerequisites
-
-* Kubernetes cluster is required to run our Helm on - Entitle agent needs its own namespace (we create one in the chart) so we can
-  run with other tools in a friendly manner
-    * **NOTICE:** If you don't have an existing Kubernetes cluster it is recommended to use our IAC to deploy one
-      including the roles/annotations
-* ability to read and write to KMSs
-    * We have our own guide/IAC for each cloud provider in order to give access to the Entitle agent
-## Installation
-### Prepare Installation
+An Entitle agent Helm chart for Kubernetes
+## Pre-Install
 ```shell
+helm dependency update ./
+helm dependency build ./
 helm repo add entitle https://anycred.github.io/entitle-charts/
+```
+## Usage
+### GCP installation
+```shell
+helm upgrade --install entitle-agent entitle/entitle-agent \
+  --set imageCredentials="${IMAGE_CREDENTIALS}" \
+  --set datadog.datadog.apiKey="${DATADOG_API_KEY}" \
+  --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
+  --set platform.gke.projectId="${PROJECT_ID}" \
+  --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+  -n "${NAMESPACE}" --create-namespace
 ```
 ## AWS installation
 
+### First things first:
 #### A. Declare Variables
 
-1. Define your cluster and namespace names:
+1. Define bash variable for `CLUSTER_NAME`:
+   `CLUSTER_NAME=<your-cluster-name>`
+1. Define your cluser's name:
    ```shell
-   export CLUSTER_NAME=<your-cluster-name>
-   export NAMESPACE=entitle
+    export CLUSTER_NAME=<your-cluster-name>
    ```
 
 2. Update kubeconfig:
+   `aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2 # Or any other region`
    ```shell
-    aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-1   # (or any other region)
+    aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2   # (or any other region)
    ```
 
+**Notice:** If you installed our IAC then you may now skip to the [chart installation part](#chart-installation)
 3. **Notice:** If you installed our IaC then you may skip to the [chart installation part](#chart-installation).
 
+### [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
 #### B. [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
 
+You can check if you already have the identity provider for your cluster using one of the following:
 You can check if you already have the Identity Provider for your cluster using one of the following:
 
+- Run this command:
+  `aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text`
+- Or [here](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/identity_providers).
 - Run the following command:
   ```shell
-  aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text
+    aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text
   ```
 - Alternatively, refer to [IAM Identity Providers](https://console.aws.amazon.com/iamv2/home#/identity_providers) page in AWS Console.
 
+If you don't have an OIDC provider, please create new one:
+`eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve`
 If you don't have an OIDC provider, create new one:
 ```shell
 eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 ```
 
-#### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)
+### [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
+#### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
 
 <details>
   <summary>Create policy</summary>
-    
+
   ```shell
   ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
   echo $ACCOUNT_ID
 
-  cat > entitle-agent-policy.json <<ENDOF
+  cat > entitle-entitle-agent-chart-policy.json <<ENDOF
   {
       "Version": "2012-10-17",
       "Statement": [
@@ -93,7 +102,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
   }
   ENDOF
 
-  aws iam create-policy --policy-name entitle-agent-policy --policy-document file://entitle-agent-policy.json --tags Key=CreatedBy,Value=Entitle
+  aws iam create-policy --policy-name entitle-entitle-agent-policy --policy-document file://entitle-entitle-agent-policy.json
   ```
 
 </details>
@@ -120,7 +129,7 @@ cat > trust.json <<ENDOF
       "Condition": {
         "StringEquals": {
           "${OIDC_PROVIDER}:aud": "sts.amazonaws.com",
-          "${OIDC_PROVIDER}:sub": "system:serviceaccount:${NAMESPACE}:entitle-agent-sa"
+          "${OIDC_PROVIDER}:sub": "system:serviceaccount:entitle:entitle-agent-sa"
         }
       }
     }
@@ -128,76 +137,62 @@ cat > trust.json <<ENDOF
 }
 ENDOF
 
-aws iam create-role --role-name entitle-agent-role --assume-role-policy-document file://trust.json --description "Entitle.IO: Agent's Role" --tags Key=CreatedBy,Value=Entitle
-aws iam attach-role-policy --role-name entitle-agent-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-agent-policy
+aws iam create-role --role-name entitle-entitle-agent-chart-role --assume-role-policy-document file://trust.json --description "entitle entitle-agent access aws"
+aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-entitle-agent-chart-policy
 ```
+
 </details>
 
 
+**Eventually you can helm install our chart:**
 
+### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 #### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 Eventually, you can install our Helm chart:
-- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
-- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
-1. Install the Helm chart:
-    ```shell
-    helm upgrade --install entitle-agent-chart ./ \
-        --set dockerConfigJson="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
-        --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-        --set datadog.clusterAgent.metricsProvider.enabled=true \
-        --set serviceAccount.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
-        --set entitleAgent.env.KMS_TYPE="aws_secret_manager" \
-        -n $NAMESPACE --create-namespace
-    ```
-2. Add _application token_ to your Kubernetes secrets:
+1. Add _application token_ to your Kubernetes secrets:
     ```shell
     echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
-    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace $NAMESPACE
+    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
     ```
 
-
-Congratulations! Entitle's agent has been installed and ou are ready to go!
-
-## GCP Installation
-#### A. Declare Variables
-Define your cluster and namespace names:
-```shell
-export CLUSTER_NAME=<your-cluster-name>
-export NAMESPACE=entitle
-```
-
-#### B. Workload Identity
-**Notice:** If you installed our IaC then you may now skip to the [chart installation part](#gcp-chart-installation).
-
-Follow the following GCP (GKE) guides:
-- [Google Kubernetes Engine (GKE) > Documentation > Guides > About Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
-- [Google Kubernetes Engine (GKE) > Documentation > Guides > Use Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
-
-In the step "**Configure applications to use Workload Identity**", use the following roles:
-- `roles/secretmanager.admin`
-- `roles/iam.securityAdmin`
-
-#### C. Update `kubeconfig`
-
-* If you have installed Entitle's Terraform IaC you simple run the following command:
-    ```shell
-    gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)
-    ```
-* Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
-    ```shell
-    gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
-    ```
-
-#### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
-
+- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the terraform output if you installed our IAC
+- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
 ```shell
 helm upgrade --install entitle-agent-chart ./ \
-    --set dockerConfigJson="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
+    --set imageCredentials="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-    --set datadog.clusterAgent.metricsProvider.enabled=true \
-    --set entitleAgent.env.KMS_TYPE=gcp_secret_manager \
-    --set entitleAgent.serviceAccountName=entitle-agent \
-    -n $NAMESPACE --create-namespace
+    --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
+    --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+    -n entitle --create-namespace
 ```
+<br /><br />
+You are ready to go!
+
+## Configuration
+
+The following table lists the configurable parameters of the Entitle-agent chart and their default values.
+
+| Parameter                | Description                                                                                                      | Default        | Required input by user          |
+| ------------------------ |------------------------------------------------------------------------------------------------------------------| -------------- |---------------------------------|
+| `imageCredentials` | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `platform.mode` |                                                                                                                  | `"gcp"` | `true`                          |
+| `platform.aws.iamRole` | IAM role for agent's service account annotations                                                                 | `null` | `true` if `platform.mode="aws"` |
+| `platform.gke.serviceAccount` | GKE service account for agent's service account annotations                                                      | `null` | `true` if `mode="platform.gcp"` |
+| `platform.gke.projectId` | GCP project ID for agent's service account annotations                                                           | `null` | `true` if `mode="platform.gcp"` |
+| `podAnnotations` | https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/                                   | `{}` | `false`                         |
+| `nodeSelector` | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                            | `{}` | `false`                         |
+| `global.environment` | Used for metadata of deployment                                                                                  | `"onprem"` | `false`                         |
+| `agent.image.repository` | Docker image repository                                                                                          | `"ghcr.io/anycred/entitle-agent"` | `false`                         |
+| `agent.image.tag` | Tag for docker image of agent                                                                                    | `"master-kafka"` | `false`                         |
+| `agent.mode` | Take values from: [kafka, websocket]                                                                             | `"kafka"` | `false`                         |
+| `agent.replicas` | Number of pods to run                                                                                            | `1` | `false`                         |
+| `agent.resources.requests.cpu` | CPU request for agent pod                                                                                        | `"500m"` | `false`                         |
+| `agent.resources.requests.memory` | Memory request for agent pod                                                                                     | `"1Gi"` | `false`                         |
+| `agent.resources.limits.cpu` | CPU limit for agent pod                                                                                          | `"1000m"` | `false`                         |
+| `agent.resources.limits.memory` | Memory limit for agent pod                                                                                       | `"3Gi"` | `false`                         |
+| `agent.websocket.token` | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info) | `null` | `false`                         |
+| `agent.kafka.base64config` | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `datadog.providers.gke.autopilot` | Whether to enable autopilot or not                                                                               | `false` | `false`                         |
+| `datadog.datadog.apiKey` | Datadog API key                                                                                                  | `null` | `true`                          |
