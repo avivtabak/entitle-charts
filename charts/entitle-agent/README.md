@@ -8,8 +8,42 @@ helm dependency update ./
 helm dependency build ./
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
-## Usage
+
 ### GCP installation
+#### A. Declare Variables
+Define your cluster and namespace names:
+```shell
+export CLUSTER_NAME=<your-cluster-name>
+export NAMESPACE=entitle
+```
+
+#### B. Workload Identity
+**Notice:** If you installed our IaC then you may now skip to the [chart installation part](#gcp-chart-installation).
+
+Follow the following GCP (GKE) guides:
+- [Google Kubernetes Engine (GKE) > Documentation > Guides > About Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
+- [Google Kubernetes Engine (GKE) > Documentation > Guides > Use Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+
+In the step "**Configure applications to use Workload Identity**", use the following roles for the gcp service account:
+- `roles/secretmanager.admin`
+- `roles/iam.securityAdmin`
+- `roles/container.developer`
+- `roles/iam.workloadIdentityUser`
+
+#### C. Update `kubeconfig`
+
+* If you have installed Entitle's Terraform IaC you simple run the following command:
+    ```shell
+    gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)
+    ```
+* Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
+    ```shell
+    gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
+    ```
+
+#### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+
+- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
   --set imageCredentials="${IMAGE_CREDENTIALS}" \
@@ -155,7 +189,6 @@ Eventually, you can install our Helm chart:
     kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
     ```
 
-- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the terraform output if you installed our IAC
 - Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
@@ -174,25 +207,26 @@ You are ready to go!
 
 The following table lists the configurable parameters of the Entitle-agent chart and their default values.
 
-| Parameter                | Description                                                                                                      | Default        | Required input by user          |
-| ------------------------ |------------------------------------------------------------------------------------------------------------------| -------------- |---------------------------------|
-| `imageCredentials` | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
-| `platform.mode` |                                                                                                                  | `"gcp"` | `true`                          |
-| `platform.aws.iamRole` | IAM role for agent's service account annotations                                                                 | `null` | `true` if `platform.mode="aws"` |
-| `platform.gke.serviceAccount` | GKE service account for agent's service account annotations                                                      | `null` | `true` if `mode="platform.gcp"` |
-| `platform.gke.projectId` | GCP project ID for agent's service account annotations                                                           | `null` | `true` if `mode="platform.gcp"` |
-| `podAnnotations` | https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/                                   | `{}` | `false`                         |
-| `nodeSelector` | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                            | `{}` | `false`                         |
-| `global.environment` | Used for metadata of deployment                                                                                  | `"onprem"` | `false`                         |
-| `agent.image.repository` | Docker image repository                                                                                          | `"ghcr.io/anycred/entitle-agent"` | `false`                         |
-| `agent.image.tag` | Tag for docker image of agent                                                                                    | `"master-kafka"` | `false`                         |
-| `agent.mode` | Take values from: [kafka, websocket]                                                                             | `"kafka"` | `false`                         |
-| `agent.replicas` | Number of pods to run                                                                                            | `1` | `false`                         |
-| `agent.resources.requests.cpu` | CPU request for agent pod                                                                                        | `"500m"` | `false`                         |
+| Parameter                         | Description                                                                                                      | Default        | Required input by user          |
+|-----------------------------------|------------------------------------------------------------------------------------------------------------------| -------------- |---------------------------------|
+| `imageCredentials`                | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `platform.mode`                   |                                                                                                                  | `"gcp"` | `true`                          |
+| `platform.aws.iamRole`            | IAM role for agent's service account annotations                                                                 | `null` | `true` if `platform.mode="aws"` |
+| `platform.gke.serviceAccount`     | GKE service account for agent's service account annotations                                                      | `null` | `true` if `mode="platform.gcp"` |
+| `platform.gke.projectId`          | GCP project ID for agent's service account annotations                                                           | `null` | `true` if `mode="platform.gcp"` |
+| `podAnnotations`                  | https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/                                   | `{}` | `false`                         |
+| `nodeSelector`                    | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                            | `{}` | `false`                         |
+| `global.environment`              | Used for metadata of deployment                                                                                  | `"onprem"` | `false`                         |
+| `agent.image.repository`          | Docker image repository                                                                                          | `"ghcr.io/anycred/entitle-agent"` | `false`                         |
+| `agent.image.tag`                 | Tag for docker image of agent                                                                                    | `"master-kafka"` | `false`                         |
+| `agent.mode`                      | Take values from: [kafka, websocket]                                                                             | `"kafka"` | `false`                         |
+| `agent.replicas`                  | Number of pods to run                                                                                            | `1` | `false`                         |
+| `agent.resources.requests.cpu`    | CPU request for agent pod                                                                                        | `"500m"` | `false`                         |
 | `agent.resources.requests.memory` | Memory request for agent pod                                                                                     | `"1Gi"` | `false`                         |
-| `agent.resources.limits.cpu` | CPU limit for agent pod                                                                                          | `"1000m"` | `false`                         |
-| `agent.resources.limits.memory` | Memory limit for agent pod                                                                                       | `"3Gi"` | `false`                         |
-| `agent.websocket.token` | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info) | `null` | `false`                         |
-| `agent.kafka.base64config` | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `agent.resources.limits.cpu`      | CPU limit for agent pod                                                                                          | `"1000m"` | `false`                         |
+| `agent.resources.limits.memory`   | Memory limit for agent pod                                                                                       | `"3Gi"` | `false`                         |
+| `agent.websocket.token`           | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info) | `null` | `false`                         |
+| `agent.kafka.base64config`        | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
 | `datadog.providers.gke.autopilot` | Whether to enable autopilot or not                                                                               | `false` | `false`                         |
-| `datadog.datadog.apiKey` | Datadog API key                                                                                                  | `null` | `true`                          |
+| `datadog.datadog.apiKey`          | Datadog API key                                                                                                  | `null` | `true`                          |
+| `datadog.datadog.tags`            | Datadog Tag - Put your company name (https://docs.datadoghq.com/tagging/)                                        | `null` | `true`                          |
