@@ -42,11 +42,12 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 
 #### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 - `imageCredentials` and `agent.kafka.token` are given to you by Entitle
-- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
+- Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
   --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
   --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
+  --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
   --set platform.gke.projectId="<GCP_PROJECT_ID>" \
   --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
@@ -180,16 +181,16 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 **Eventually you can helm install our chart:**
 
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
-#### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 Eventually, you can install our Helm chart:
 - `imageCredentials` and `agent.kafka.token` are given to you by Entitle
 - Replace `platform.aws.iamrole` with Entitle's AWS IAM Role you've created
-- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
+- Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
     --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
+    --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
     --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
     --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
     -n entitle --create-namespace
