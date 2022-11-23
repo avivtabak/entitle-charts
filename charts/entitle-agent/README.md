@@ -236,7 +236,7 @@ Eventually, you can install our Helm chart:
 
 ```shell
 export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
-export DATADOG_API_KEY=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export DATADOG_API_KEY=<DATADOG_API_KEY_FROM_ENTITLE>
 export TOKEN=<TOKEN_FROM_ENTITLE>
 export ORG_NAME=<YOUR ORGANIZATION NAME>
 
@@ -252,7 +252,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
 For backward compatibility, the for 0.x version, use:
 ```shell
 export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
-export DATADOG_API_KEY=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export DATADOG_API_KEY=<DATADOG_API_KEY_FROM_ENTITLE>
 export TOKEN=<TOKEN_FROM_ENTITLE>
 export ORG_NAME=<YOUR ORGANIZATION NAME>
 
