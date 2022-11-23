@@ -158,7 +158,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
   ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
   echo $ACCOUNT_ID
 
-  cat > entitle-entitle-agent-chart-policy.json <<ENDOF
+  cat > entitle-agent-policy.json <<ENDOF
   {
       "Version": "2012-10-17",
       "Statement": [
@@ -188,7 +188,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
   }
   ENDOF
 
-  aws iam create-policy --policy-name entitle-entitle-agent-policy --policy-document file://entitle-entitle-agent-policy.json
+  aws iam create-policy --policy-name entitle-agent-policy --policy-document file://entitle-agent-policy.json
   ```
 
 </details>
@@ -223,8 +223,8 @@ cat > trust.json <<ENDOF
 }
 ENDOF
 
-aws iam create-role --role-name entitle-entitle-agent-chart-role --assume-role-policy-document file://trust.json --description "entitle entitle-agent access aws"
-aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-entitle-agent-chart-policy
+aws iam create-role --role-name entitle-agent-role --assume-role-policy-document file://trust.json --description "Entitle Agent's AWS Role"
+aws iam attach-role-policy --role-name entitle-agent-role --policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/entitle-agent-policy
 ```
 
 </details>
@@ -237,12 +237,34 @@ Eventually, you can install our Helm chart:
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
 ```shell
+export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export DATADOG_API_KEY=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export TOKEN=<TOKEN_FROM_ENTITLE>
+export ORG_NAME=<YOUR ORGANIZATION NAME>
+
 helm upgrade --install entitle-agent entitle/entitle-agent \
-    --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
-    --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-    --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
+    --set imageCredentials=${IMAGE_CREDENTIALS} \
+    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
+    --set datadog.datadog.tags={company:${ORG_NAME}} \
     --set platform.aws.iamRole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
-    --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
+    --set agent.kafka.token="${TOKEN}" \
+    -n entitle --create-namespace
+```
+
+For backward compatibility, the for 0.x version, use:
+```shell
+export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export DATADOG_API_KEY=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export TOKEN=<TOKEN_FROM_ENTITLE>
+export ORG_NAME=<YOUR ORGANIZATION NAME>
+
+helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set imageCredentials=${IMAGE_CREDENTIALS} \
+    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
+    --set datadog.datadog.tags={company:${ORG_NAME}} \
+    --set platform.aws.iamRole="arn:aws:iam::${ACCOUNT_ID}:role/entitle-agent-role" \
+    --set agent.mode=websocket \
+    --set agent.websocket.token="${TOKEN}" \
     -n entitle --create-namespace
 ```
 
