@@ -10,14 +10,7 @@ helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
 
 ### GCP installation
-#### A. Declare Variables
-Define your cluster and namespace names:
-```shell
-export CLUSTER_NAME=<your-cluster-name>
-export NAMESPACE=entitle
-```
-
-#### B. Workload Identity
+#### A. Workload Identity
 **Notice:** If you installed our IaC then you may now skip to the [chart installation part](#gcp-chart-installation).
 
 Follow the following GCP (GKE) guides:
@@ -30,20 +23,47 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 - `roles/container.developer`
 - `roles/iam.workloadIdentityUser`
 
-#### C. Update `kubeconfig`
+#### B. Update `kubeconfig`
 
-* If you have installed Entitle's Terraform IaC you simple run the following command:
+* If you have installed Entitle's Terraform IaC:
+    
+    You can set the environment variables using terraform output file `terraform_output.json`:
     ```shell
-    gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)
+    BASTION_HOSTNAME=$(jq -r '.bastion_hostname.value' terraform_output.json)
+    PROJECT_ID=$(jq -r '.project_id.value' terraform_output.json)
+    BASTION_ZONE=$(jq -r '.bastion_zone.value' terraform_output.json)
+    REGION=$(jq -r '.region.value' terraform_output.json)
+    CLUSTER_NAME=$(jq -r '.cluster_name.value' terraform_output.json)
+    ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME=$(jq -r '.entitle_agent_gke_service_account_name.value' terraform_output.json)
+    BASE64_CONFIGURATION=$(jq -r '.base64_configuration.value' terraform_output.json)
+    NAMESPACE=$(jq -r '.namespace.value' terraform_output.json)
+    IMAGE_CREDENTIALS=$(jq -r '.image_credentials.value' terraform_output.json)
+    DATADOG_API_KEY=$(jq -r '.datadog_api_key.value' terraform_output.json)
+    BASTION_SETUP_COMMAND=$(jq -r '.bastion_setup_command.value' terraform_output.json)
+    AUTOPILOT=$(jq -r '.autopilot.value' terraform_output.json)
     ```
+  
+    #### Setting up IAP-tunnel:
+    ```shell
+    gcloud beta compute ssh "${BASTION_HOSTNAME}" --tunnel-through-iap --project "${PROJECT_ID}" --zone "${BASTION_ZONE}" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
+    ```
+    
+    If your cluster isn't configured on kubeconfig yet:
+    ```shell
+    gcloud container clusters get-credentials "${CLUSTER_NAME}" --region "${REGION}" --project "${PROJECT_ID}" --internal-ip
+    ```
+
 * Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
     ```shell
     gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
     ```
 
-#### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+#### C. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+If you have installed Entitle's Terraform IaC, you need to set up proxy(after [Setting up IAP-tunnel](#setting-up-iap-tunnel)):
+```shell
+export HTTPS_PROXY=localhost:8888
+```
 
-- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
   --set imageCredentials="${IMAGE_CREDENTIALS}" \
@@ -51,6 +71,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
   --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+  --set-json datadog.datadog.tags='["customer:<DATADOG_CUSTOMER_ID>"]' \
   -n "${NAMESPACE}" --create-namespace
 ```
 ## AWS installation
@@ -177,20 +198,8 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 
 </details>
 
-
-**Eventually you can helm install our chart:**
-
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
-#### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 Eventually, you can install our Helm chart:
-1. Add _application token_ to your Kubernetes secrets:
-    ```shell
-    echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
-    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
-    ```
-
-- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
-- Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
 ```shell
 helm upgrade --install entitle-agent-chart ./ \
@@ -198,6 +207,7 @@ helm upgrade --install entitle-agent-chart ./ \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
     --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
     --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+    --set-json datadog.datadog.tags='["customer:<DATADOG_CUSTOMER_ID>"]' \
     -n entitle --create-namespace
 ```
 <br /><br />
