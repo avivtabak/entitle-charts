@@ -2,21 +2,27 @@ Entitle-agent
 ===========
 
 An Entitle agent Helm chart for Kubernetes
+
 ## Pre-Install
+
 ```shell
 helm dependency update charts/entitle-agent
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
 
 ### GCP installation
+
 #### A. Workload Identity
+
 **Notice:** If you installed our IaC then you may now skip to the [chart installation part](#gcp-chart-installation).
 
 Follow the following GCP (GKE) guides:
+
 - [Google Kubernetes Engine (GKE) > Documentation > Guides > About Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
 - [Google Kubernetes Engine (GKE) > Documentation > Guides > Use Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
 
 In the step "**Configure applications to use Workload Identity**", use the following roles for the gcp service account:
+
 - `roles/secretmanager.admin`
 - `roles/iam.securityAdmin`
 - `roles/container.developer`
@@ -25,8 +31,8 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 #### B. Update `kubeconfig`
 
 * If you have installed Entitle's Terraform IaC:
-    
-    You can set the environment variables using terraform output file `terraform_output.json`:
+
+  You can set the environment variables using terraform output file `terraform_output.json`:
     ```shell
     BASTION_HOSTNAME=$(jq -r '.bastion_hostname.value' terraform_output.json)
     PROJECT_ID=$(jq -r '.project_id.value' terraform_output.json)
@@ -41,13 +47,13 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     BASTION_SETUP_COMMAND=$(jq -r '.bastion_setup_command.value' terraform_output.json)
     AUTOPILOT=$(jq -r '.autopilot.value' terraform_output.json)
     ```
-  
-    #### Setting up IAP-tunnel:
+
+  #### Setting up IAP-tunnel:
     ```shell
     gcloud beta compute ssh "${BASTION_HOSTNAME}" --tunnel-through-iap --project "${PROJECT_ID}" --zone "${BASTION_ZONE}" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
     ```
-    
-    If your cluster isn't configured on kubeconfig yet:
+
+  If your cluster isn't configured on kubeconfig yet:
     ```shell
     gcloud container clusters get-credentials "${CLUSTER_NAME}" --region "${REGION}" --project "${PROJECT_ID}" --internal-ip
     ```
@@ -58,24 +64,42 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     ```
 
 #### C. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+
 If you have installed Entitle's Terraform IaC, you need to set up proxy(after [Setting up IAP-tunnel](#setting-up-iap-tunnel)):
+
 ```shell
 export HTTPS_PROXY=localhost:8888
 ```
 
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
+  --set imageCredentials="<IMAGE_CREDENTIALS>" \
+  --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
+  --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
+  --set platform.gke.projectId="<PROJECT_ID>" \
+  --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
+  --set-json datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
+  -n "<NAMESPACE>" --create-namespace
+```
+
+If you set up evniroment variables you can use:
+
+```shell
+helm upgrade --install entitle-agent entitle/entitle-agent \
   --set imageCredentials="${IMAGE_CREDENTIALS}" \
   --set datadog.datadog.apiKey="${DATADOG_API_KEY}" \
+  --set datadog.providers.gke.autopilot="$AUTOPILOT" \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
-  --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
-  --set-json datadog.datadog.tags='["customer:<DATADOG_CUSTOMER_ID>"]' \
+  --set agent.kafka.base64config="${KAFKA_CONFIGURATION}" \
+  --set-json datadog.datadog.tags="[\"customer\":\"${COSTUMER_NAME}\"]" \
   -n "${NAMESPACE}" --create-namespace
 ```
+
 ## AWS installation
 
 ### First things first:
+
 #### A. Declare Variables
 
 1. Define bash variable for `CLUSTER_NAME`:
@@ -92,9 +116,11 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
    ```
 
 **Notice:** If you installed our IAC then you may now skip to the [chart installation part](#chart-installation)
+
 3. **Notice:** If you installed our IaC then you may skip to the [chart installation part](#chart-installation).
 
 ### [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
+
 #### B. [Create OIDC Provider](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
 
 You can check if you already have the identity provider for your cluster using one of the following:
@@ -112,11 +138,13 @@ You can check if you already have the Identity Provider for your cluster using o
 If you don't have an OIDC provider, please create new one:
 `eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve`
 If you don't have an OIDC provider, create new one:
+
 ```shell
 eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 ```
 
 ### [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
+
 #### C. [Create IAM Policy and Role](https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html)
 
 <details>
@@ -198,6 +226,7 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 </details>
 
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+
 Eventually, you can install our Helm chart:
 
 ```shell
@@ -205,10 +234,11 @@ helm upgrade --install entitle-agent-chart ./ \
     --set imageCredentials="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
     --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
-    --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
-    --set-json datadog.datadog.tags='["customer:<DATADOG_CUSTOMER_ID>"]' \
+    --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
+    --set-json datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
     -n entitle --create-namespace
 ```
+
 <br /><br />
 You are ready to go!
 
