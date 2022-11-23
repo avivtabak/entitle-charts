@@ -41,15 +41,15 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     ```
 
 #### D. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
-
+- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
-  --set imageCredentials="${IMAGE_CREDENTIALS}" \
-  --set datadog.datadog.apiKey="${DATADOG_API_KEY}" \
-  --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
-  --set platform.gke.projectId="${PROJECT_ID}" \
-  --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+  --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
+  --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
+  --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
+  --set platform.gke.projectId="<GCP_PROJECT_ID>" \
+  --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
   -n "${NAMESPACE}" --create-namespace
 ```
 ## AWS installation
@@ -182,21 +182,16 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 #### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 Eventually, you can install our Helm chart:
-1. Add _application token_ to your Kubernetes secrets:
-    ```shell
-    echo -n '{"token":"<YOUR_APP_TOKEN>"}' > entitle-agent-secret                 # This file name is mandatory
-    kubectl create secret generic entitle-agent-secret --from-file=./entitle-agent-secret --namespace entitle
-    ```
-
-- Replace `serviceAccount.iamrole` with `secretsmanager_role_arn` from the Terraform's output if you installed our IaC
+- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
+- Replace `platform.aws.iamrole` with Entitle's AWS IAM Role you've created
 - Replace `<DATADOG_CUSTOMER_ID>` in `datadog.tags` to your company name
 
 ```shell
-helm upgrade --install entitle-agent-chart ./ \
-    --set imageCredentials="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
+helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-    --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
-    --set agent.kafka.base64config="${BASE64_CONFIGURATION}" \
+    --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
+    --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
     -n entitle --create-namespace
 ```
 <br /><br />
@@ -225,7 +220,7 @@ The following table lists the configurable parameters of the Entitle-agent chart
 | `agent.resources.limits.cpu`      | CPU limit for agent pod                                                                                          | `"1000m"` | `false`                         |
 | `agent.resources.limits.memory`   | Memory limit for agent pod                                                                                       | `"3Gi"` | `false`                         |
 | `agent.websocket.token`           | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info) | `null` | `false`                         |
-| `agent.kafka.base64config`        | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `agent.kafka.token`               | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
 | `datadog.providers.gke.autopilot` | Whether to enable autopilot or not                                                                               | `false` | `false`                         |
 | `datadog.datadog.apiKey`          | Datadog API key                                                                                                  | `null` | `true`                          |
 | `datadog.datadog.tags`            | Datadog Tag - Put your company name (https://docs.datadoghq.com/tagging/)                                        | `null` | `true`                          |

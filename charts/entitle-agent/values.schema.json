@@ -158,10 +158,10 @@
           "kafka": {
             "type": "object",
             "required": [
-              "base64config"
+              "token"
             ],
             "properties": {
-              "base64config": {
+              "token": {
                 "type": "string"
               }
             }
