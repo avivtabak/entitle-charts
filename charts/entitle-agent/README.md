@@ -78,7 +78,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
   --set platform.gke.projectId="<PROJECT_ID>" \
   --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
-  --set-json datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
+  --set datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
   -n "<NAMESPACE>" --create-namespace
 ```
 
@@ -92,7 +92,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
   --set agent.kafka.base64config="${KAFKA_CONFIGURATION}" \
-  --set-json datadog.datadog.tags="[\"customer\":\"${COSTUMER_NAME}\"]" \
+  --set datadog.datadog.tags="[\"customer\":\"${COSTUMER_NAME}\"]" \
   -n "${NAMESPACE}" --create-namespace
 ```
 
@@ -235,7 +235,7 @@ helm upgrade --install entitle-agent-chart ./ \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
     --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
     --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
-    --set-json datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
+    --set datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
     -n entitle --create-namespace
 ```
 
