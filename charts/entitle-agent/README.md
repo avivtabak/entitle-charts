@@ -235,7 +235,7 @@ helm upgrade --install entitle-agent-chart ./ \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
     --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
     --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
-    --set datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
+    --set datadog.datadog.tags=["customer":"<COSTUMER_NAME>"] \
     -n entitle --create-namespace
 ```
 
