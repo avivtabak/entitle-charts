@@ -7,7 +7,7 @@ metadata:
     environment: {{ .Values.global.environment }}
     tags.datadoghq.com/env: {{ .Values.global.environment }}
     tags.datadoghq.com/service: {{ include "entitle-agent.fullname" . }}-{{ .Values.global.environment }}
-    tags.datadoghq.com/version: {{ include "entitle-agent.fullnameWithImageTag" .}}
+    tags.datadoghq.com/version: {{ include "entitle-agent.imageTag" .}}
     {{- include "entitle-agent.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.agent.replicas }}
@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/ghcr: {{ include (print $.Template.BasePath "/ghcr.yaml") . | sha256sum }}
+        checksum/docker-login: {{ include (print $.Template.BasePath "/docker-login.yaml") . | sha256sum }}
         ad.datadoghq.com/{{ include "entitle-agent.fullname" . }}.logs: '[{"source":{{ include "entitle-agent.fullname" . }}}]'
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -28,7 +28,7 @@ spec:
         environment: {{ .Values.global.environment }}
         tags.datadoghq.com/env: {{ .Values.global.environment }}
         tags.datadoghq.com/service: {{ include "entitle-agent.fullname" . }}-{{ .Values.global.environment }}
-        tags.datadoghq.com/version: {{ include "entitle-agent.fullnameWithImageTag" .}}
+        tags.datadoghq.com/version: {{ include "entitle-agent.imageTag" .}}
         {{- include "entitle-agent.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -65,7 +65,7 @@ spec:
           - -c
           - touch /tmp/healthy;
       imagePullSecrets:
-        - name: ghcr
+        - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
