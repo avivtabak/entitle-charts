@@ -36,13 +36,11 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     ```shell
     BASTION_HOSTNAME=$(jq -r '.bastion_hostname.value' terraform_output.json)
     PROJECT_ID=$(jq -r '.project_id.value' terraform_output.json)
-    BASTION_ZONE=$(jq -r '.bastion_zone.value' terraform_output.json)
-    REGION=$(jq -r '.region.value' terraform_output.json)
     ZONE=$(jq -r '.zone.value' terraform_output.json)
-    ORGANIZATION_NAME=$(jq -r '.org_name.value' terraform_output.json)
     CLUSTER_NAME=$(jq -r '.cluster_name.value' terraform_output.json)
     ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME=$(jq -r '.entitle_agent_gke_service_account_name.value' terraform_output.json)
-    KAFKA_TOKEN=$(jq -r '.kafka_token.value' terraform_output.json)
+    TOKEN=$(jq -r '.token.value' terraform_output.json)
+    COSTUMER_NAME=$(jq -r '.costumer_name.value' terraform_output.json)
     NAMESPACE=$(jq -r '.namespace.value' terraform_output.json)
     IMAGE_CREDENTIALS=$(jq -r '.image_credentials.value' terraform_output.json)
     DATADOG_API_KEY=$(jq -r '.datadog_api_key.value' terraform_output.json)
@@ -52,7 +50,7 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 
   #### Setting up IAP-tunnel:
     ```shell
-    gcloud beta compute ssh "${BASTION_HOSTNAME}" --tunnel-through-iap --project "${PROJECT_ID}" --zone "${BASTION_ZONE}" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
+    gcloud beta compute ssh "<BASTION_HOSTNAME>" --tunnel-through-iap --project "<PROJECT_ID>" --zone "<ZONE>" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
     ```
 
   If your cluster isn't configured on kubeconfig yet:
@@ -60,9 +58,9 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     gcloud container clusters get-credentials "<CLUSTER_NAME>" --zone "<ZONE>" --project "<PROJECT_ID>" --internal-ip
     ```
 
-* Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
+* Otherwise, simply replace `<CLUSTER_NAME>` and `<ZONE>` and run the following command:
     ```shell
-    gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
+    gcloud container clusters get-credentials <CLUSTER_NAME> --zone <ZONE>
     ```
 
 #### C. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
@@ -81,7 +79,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
   --set platform.gke.projectId="<PROJECT_ID>" \
-  --set agent.kafka.token="<KAFKA_TOKEN>" \
+  --set agent.kafka.token="<TOKEN>" \
   --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
   -n "<NAMESPACE>" --create-namespace
 ```
@@ -95,7 +93,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.providers.gke.autopilot="$AUTOPILOT" \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
-  --set agent.kafka.token="${KAFKA_TOKEN}" \
+  --set agent.kafka.token="${TOKEN}" \
   --set datadog.datadog.tags={company:${ORGANIZATION_NAME}} \
   -n "${NAMESPACE}" --create-namespace
 ```
