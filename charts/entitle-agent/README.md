@@ -38,9 +38,11 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     PROJECT_ID=$(jq -r '.project_id.value' terraform_output.json)
     BASTION_ZONE=$(jq -r '.bastion_zone.value' terraform_output.json)
     REGION=$(jq -r '.region.value' terraform_output.json)
+    ZONE=$(jq -r '.zone.value' terraform_output.json)
+    ORGANIZATION_NAME=$(jq -r '.org_name.value' terraform_output.json)
     CLUSTER_NAME=$(jq -r '.cluster_name.value' terraform_output.json)
     ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME=$(jq -r '.entitle_agent_gke_service_account_name.value' terraform_output.json)
-    BASE64_CONFIGURATION=$(jq -r '.base64_configuration.value' terraform_output.json)
+    KAFKA_TOKEN=$(jq -r '.kafka_token.value' terraform_output.json)
     NAMESPACE=$(jq -r '.namespace.value' terraform_output.json)
     IMAGE_CREDENTIALS=$(jq -r '.image_credentials.value' terraform_output.json)
     DATADOG_API_KEY=$(jq -r '.datadog_api_key.value' terraform_output.json)
@@ -55,7 +57,7 @@ In the step "**Configure applications to use Workload Identity**", use the follo
 
   If your cluster isn't configured on kubeconfig yet:
     ```shell
-    gcloud container clusters get-credentials "${CLUSTER_NAME}" --region "${REGION}" --project "${PROJECT_ID}" --internal-ip
+    gcloud container clusters get-credentials "<CLUSTER_NAME>" --zone "<ZONE>" --project "<PROJECT_ID>" --internal-ip
     ```
 
 * Otherwise, simply replace `<CLUSTER_NAME>` and `<REGION>` and run the following command:
@@ -64,8 +66,10 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     ```
 
 #### C. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
+- Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
-If you have installed Entitle's Terraform IaC, you need to set up proxy(after [Setting up IAP-tunnel](#setting-up-iap-tunnel)):
+- If you have installed Entitle's Terraform IaC, you need to set up proxy(after [Setting up IAP-tunnel](#setting-up-iap-tunnel)):
 
 ```shell
 export HTTPS_PROXY=localhost:8888
@@ -77,12 +81,12 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
   --set platform.gke.projectId="<PROJECT_ID>" \
-  --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
-  --set datadog.datadog.tags="[\"customer\":\"<COSTUMER_NAME>\"]" \
+  --set agent.kafka.token="<KAFKA_TOKEN>" \
+  --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
   -n "<NAMESPACE>" --create-namespace
 ```
 
-If you set up evniroment variables you can use:
+If you set up environment variables you can use:
 
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
@@ -91,8 +95,8 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.providers.gke.autopilot="$AUTOPILOT" \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
-  --set agent.kafka.base64config="${KAFKA_CONFIGURATION}" \
-  --set datadog.datadog.tags="[\"customer\":\"${COSTUMER_NAME}\"]" \
+  --set agent.kafka.token="${KAFKA_TOKEN}" \
+  --set datadog.datadog.tags={company:${ORGANIZATION_NAME}} \
   -n "${NAMESPACE}" --create-namespace
 ```
 
@@ -228,14 +232,17 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 
 Eventually, you can install our Helm chart:
+- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
+- Replace `platform.aws.iamRole` with Entitle's AWS IAM Role you've created
+- Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
 ```shell
-helm upgrade --install entitle-agent-chart ./ \
-    --set imageCredentials="<BASE64_ENCODED_DOCKER_CONFIG_JSON>" \
+helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
-    --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle--agent-role" \
-    --set agent.kafka.base64config="<BASE64_CONFIGURATION>" \
-    --set datadog.datadog.tags=["customer":"<COSTUMER_NAME>"] \
+    --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
+    --set platform.aws.iamRole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
+    --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
     -n entitle --create-namespace
 ```
 
@@ -265,7 +272,7 @@ The following table lists the configurable parameters of the Entitle-agent chart
 | `agent.resources.limits.cpu`      | CPU limit for agent pod                                                                                          | `"1000m"` | `false`                         |
 | `agent.resources.limits.memory`   | Memory limit for agent pod                                                                                       | `"3Gi"` | `false`                         |
 | `agent.websocket.token`           | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info) | `null` | `false`                         |
-| `agent.kafka.base64config`        | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
+| `agent.kafka.token`               | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
 | `datadog.providers.gke.autopilot` | Whether to enable autopilot or not                                                                               | `false` | `false`                         |
 | `datadog.datadog.apiKey`          | Datadog API key                                                                                                  | `null` | `true`                          |
 | `datadog.datadog.tags`            | Datadog Tag - Put your company name (https://docs.datadoghq.com/tagging/)                                        | `null` | `true`                          |
