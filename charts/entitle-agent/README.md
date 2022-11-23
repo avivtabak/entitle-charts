@@ -183,7 +183,7 @@ aws iam attach-role-policy --role-name entitle-entitle-agent-chart-role --policy
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 Eventually, you can install our Helm chart:
 - `imageCredentials` and `agent.kafka.token` are given to you by Entitle
-- Replace `platform.aws.iamrole` with Entitle's AWS IAM Role you've created
+- Replace `platform.aws.iamRole` with Entitle's AWS IAM Role you've created
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
 ```shell
@@ -191,7 +191,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
     --set imageCredentials="<IMAGE_CREDENTIALS_FROM_ENTITLE>" \
     --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
     --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
-    --set platform.aws.iamrole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
+    --set platform.aws.iamRole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
     --set agent.kafka.token="<TOKEN_FROM_ENTITLE>" \
     -n entitle --create-namespace
 ```

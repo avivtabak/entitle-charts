@@ -2,7 +2,4 @@ Congratulations, you have installed Entitle's on-prem agent!
 You can see your running agents using
     kubectl get pods
 
-For any issues, feel free to contact our support team at
-    dennis@entitle.io
- or
-    avi@entitle.io
+Feel free to contact us regarding any issues!
