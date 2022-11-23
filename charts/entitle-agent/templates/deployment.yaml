@@ -46,8 +46,10 @@ spec:
           value: "false"
         - name: ENTITLE_KMS_TYPE
           value: {{ include "entitle-agent.kmsType" . }}
+        {{- if .Values.agent.kafka.bootstrapServers }}
         - name: ENTITLE_KAFKA_BOOTSTRAP_SERVERS
-          value: {{ .Values.agent.kafka.bootstrapServers | quote }}
+          value: {{ .Values.agent.kafka.bootstrapServers }}
+        {{- end }}
         - name: ENTITLE_JSON_CONFIGURATION
           valueFrom:
             secretKeyRef:

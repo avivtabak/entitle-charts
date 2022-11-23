@@ -40,7 +40,7 @@ agent:
   websocket:
     token: # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)
   kafka:
-    bootstrapServers: b-2-public.entitleqakafka.cazikk.c9.kafka.eu-west-1.amazonaws.com:9196,b-1-public.entitleqakafka.cazikk.c9.kafka.eu-west-1.amazonaws.com:9196 # Kafka public bootstrap servers TODO: dennis
+    bootstrapServers:  # Kafka public bootstrap servers
     token: "" # Credentials you've received upon agent installation (Contact us for more info)
 ############################################################
 datadog:
