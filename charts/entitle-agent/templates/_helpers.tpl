@@ -52,10 +52,10 @@ Service account annotations
 Service Accounts annotations
 */}}
 {{- define "entitle-agent.serviceAccountAnnotations" -}}
-{{- if .Values.platform.aws.iamRole }}
-   eks.amazonaws.com/role-arn: {{ .Values.platform.aws.iamRole }}
-{{- else  }}
-   iam.gke.io/gcp-service-account: {{ printf "%s@%s.iam.gserviceaccount.com" .Values.platform.gke.serviceAccount .Values.platform.gke.projectId | quote}}
+{{- if .Values.platform.aws.iamRole -}}
+eks.amazonaws.com/role-arn: {{ .Values.platform.aws.iamRole }}
+{{- else -}}
+iam.gke.io/gcp-service-account: {{ printf "%s@%s.iam.gserviceaccount.com" .Values.platform.gke.serviceAccount .Values.platform.gke.projectId | quote}}
 {{- end }}
 {{- end }}
 

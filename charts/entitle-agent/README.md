@@ -4,8 +4,7 @@ Entitle-agent
 An Entitle agent Helm chart for Kubernetes
 ## Pre-Install
 ```shell
-helm dependency update ./
-helm dependency build ./
+helm dependency update charts/entitle-agent
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
 
