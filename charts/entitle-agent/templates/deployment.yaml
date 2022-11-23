@@ -19,7 +19,7 @@ spec:
     metadata:
       annotations:
         checksum/docker-login: {{ include (print $.Template.BasePath "/docker-login.yaml") . | sha256sum }}
-        ad.datadoghq.com/{{ include "entitle-agent.fullname" . }}.logs: '[{"source":{{ include "entitle-agent.fullname" . }}}]'
+        ad.datadoghq.com/{{ include "entitle-agent.fullname" . }}.logs: '[{"source": "{{ include "entitle-agent.fullname" . }}"}]'
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -246,7 +246,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
     --set imageCredentials=${IMAGE_CREDENTIALS} \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \
-    --set platform.aws.iamRole="arn:aws:iam::<ACCOUNT_ID>:role/entitle-agent-role" \
+    --set platform.aws.iamRole="arn:aws:iam::${ACCOUNT_ID}:role/entitle-agent-role" \
     --set agent.kafka.token="${TOKEN}" \
     -n entitle --create-namespace
 ```

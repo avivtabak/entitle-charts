@@ -11,7 +11,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "entitle-agent.fullname" -}}
-{{- printf "%s-%s" "entitle-agent" .Values.agent.mode | trunc 63}}
+{{- printf "%s" "entitle-agent" | trunc 63}}
 {{- end }}
 
 {{/*
