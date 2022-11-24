@@ -1,12 +1,14 @@
-Entitle-agent
+Entitle Agent
 ===========
 
-An Entitle agent Helm chart for Kubernetes
+A Helm Chart for Entitle's Agent.
 
 ## Pre-Install
 
 ```shell
 helm dependency update charts/entitle-agent
+helm dependency build charts/entitle-agent
+helm repo add datadog https://helm.datadoghq.com
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
 
@@ -51,11 +53,9 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     ```
 
 * #### Setting up IAP-tunnel:
-  
     ```shell
     gcloud beta compute ssh "<BASTION_HOSTNAME>" --tunnel-through-iap --project "<PROJECT_ID>" --zone "<ZONE>" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
     ```
-  
 In the following: If AutoPilot is enabled, replace --zone with --region
 * If your cluster isn't configured on kubeconfig yet:
     ```shell
@@ -94,7 +94,7 @@ If you set up environment variables you can use:
 helm upgrade --install entitle-agent entitle/entitle-agent \
   --set imageCredentials="${IMAGE_CREDENTIALS}" \
   --set datadog.datadog.apiKey="${DATADOG_API_KEY}" \
-  --set datadog.providers.gke.autopilot="$AUTOPILOT" \
+  --set datadog.providers.gke.autopilot="${AUTOPILOT}" \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
   --set agent.kafka.token="${TOKEN}" \
@@ -277,8 +277,8 @@ You are ready to go!
 
 The following table lists the configurable parameters of the Entitle-agent chart and their default values.
 
-| Parameter                         | Description                                                                                                      | Default        | Required input by user          |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------| -------------- |---------------------------------|
+| Parameter                         | Description                                                                                                      | Default       | Required input by user          |
+|-----------------------------------|------------------------------------------------------------------------------------------------------------------| ------------- |---------------------------------|
 | `imageCredentials`                | Credentials you've received upon agent installation (Contact us for more info)                                   | `null` | `true`                          |
 | `platform.mode`                   |                                                                                                                  | `"gcp"` | `true`                          |
 | `platform.aws.iamRole`            | IAM role for agent's service account annotations                                                                 | `null` | `true` if `platform.mode="aws"` |
@@ -288,7 +288,7 @@ The following table lists the configurable parameters of the Entitle-agent chart
 | `nodeSelector`                    | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                            | `{}` | `false`                         |
 | `global.environment`              | Used for metadata of deployment                                                                                  | `"onprem"` | `false`                         |
 | `agent.image.repository`          | Docker image repository                                                                                          | `"ghcr.io/anycred/entitle-agent"` | `false`                         |
-| `agent.image.tag`                 | Tag for docker image of agent                                                                                    | `"master-kafka"` | `false`                         |
+| `agent.image.tag`                 | Tag for docker image of agent                                                                                    | `"master"` | `false`                         |
 | `agent.mode`                      | Take values from: [kafka, websocket]                                                                             | `"kafka"` | `false`                         |
 | `agent.replicas`                  | Number of pods to run                                                                                            | `1` | `false`                         |
 | `agent.resources.requests.cpu`    | CPU request for agent pod                                                                                        | `"500m"` | `false`                         |
