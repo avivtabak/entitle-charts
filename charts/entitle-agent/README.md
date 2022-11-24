@@ -50,14 +50,13 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     AGENT_MODE=$(jq -r '.agent_mode.value' terraform_output.json)
     ```
 
-In the following: If AutoPilot is enabled, replace --zone with --region
 * #### Setting up IAP-tunnel:
   
     ```shell
     gcloud beta compute ssh "<BASTION_HOSTNAME>" --tunnel-through-iap --project "<PROJECT_ID>" --zone "<ZONE>" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
     ```
   
-
+In the following: If AutoPilot is enabled, replace --zone with --region
 * If your cluster isn't configured on kubeconfig yet:
     ```shell
     gcloud container clusters get-credentials "<CLUSTER_NAME>" --zone "<ZONE>" --project "<PROJECT_ID>" --internal-ip
