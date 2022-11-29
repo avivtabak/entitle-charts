@@ -62,10 +62,14 @@ spec:
         name: {{ include "entitle-agent.fullname" . }}
         resources:
           {{- toYaml .Values.agent.resources | nindent 10 }}
-        args:
-          - /bin/sh
-          - -c
-          - touch /tmp/healthy;
+        startupProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck.py
+              - {{ include "entitle-agent.cloudPlatform" . }}
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}

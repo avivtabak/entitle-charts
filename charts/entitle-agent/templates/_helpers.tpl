@@ -71,6 +71,14 @@ KMS type
 {{- end }}
 {{- end }}
 
+{{- define "entitle-agent.cloudPlatform" -}}
+{{- if .Values.platform.aws.iamRole }}
+{{- default "aws"}}
+{{- else  }}
+{{- default "gcp"}}
+{{- end }}
+{{- end }}
+
 {{/*
 Image Tag
 */}}
