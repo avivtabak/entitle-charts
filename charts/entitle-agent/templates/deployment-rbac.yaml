@@ -5,11 +5,7 @@ metadata:
   labels:
   {{- include "entitle-agent.labels" . | nindent 4 }}
 rules:
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-    verbs:
+  - verbs:
       - get
       - list
       - watch
@@ -17,3 +13,20 @@ rules:
       - update
       - patch
       - delete
+    apiGroups: ["apps"]
+    resources:
+      - deployments
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups: [ "" ]
+    resources:
+      - pods
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups: [ "apps" ]
+    resources:
+      - replicasets
