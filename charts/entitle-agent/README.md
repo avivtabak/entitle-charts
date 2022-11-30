@@ -6,8 +6,6 @@ A Helm Chart for Entitle's Agent.
 ## Pre-Install
 
 ```shell
-helm dependency update charts/entitle-agent
-helm dependency build charts/entitle-agent
 helm repo add datadog https://helm.datadoghq.com
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
@@ -39,6 +37,7 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     BASTION_HOSTNAME=$(jq -r '.bastion_hostname.value' terraform_output.json)
     PROJECT_ID=$(jq -r '.project_id.value' terraform_output.json)
     ZONE=$(jq -r '.zone.value' terraform_output.json)
+    REGION=$(jq -r '.region.value' terraform_output.json)
     CLUSTER_NAME=$(jq -r '.cluster_name.value' terraform_output.json)
     ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME=$(jq -r '.entitle_agent_gke_service_account_name.value' terraform_output.json)
     TOKEN=$(jq -r '.token.value' terraform_output.json)
@@ -48,14 +47,15 @@ In the step "**Configure applications to use Workload Identity**", use the follo
     DATADOG_API_KEY=$(jq -r '.datadog_api_key.value' terraform_output.json)
     BASTION_SETUP_COMMAND=$(jq -r '.bastion_setup_command.value' terraform_output.json)
     AUTOPILOT=$(jq -r '.autopilot.value' terraform_output.json)
+    AGENT_MODE=$(jq -r '.agent_mode.value' terraform_output.json)
     ```
 
-  #### Setting up IAP-tunnel:
+* #### Setting up IAP-tunnel:
     ```shell
     gcloud beta compute ssh "<BASTION_HOSTNAME>" --tunnel-through-iap --project "<PROJECT_ID>" --zone "<ZONE>" -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
     ```
-
-  If your cluster isn't configured on kubeconfig yet:
+In the following: If AutoPilot is enabled, replace --zone with --region
+* If your cluster isn't configured on kubeconfig yet:
     ```shell
     gcloud container clusters get-credentials "<CLUSTER_NAME>" --zone "<ZONE>" --project "<PROJECT_ID>" --internal-ip
     ```
