@@ -29,13 +29,13 @@ agent:
     repository: ghcr.io/anycred/entitle-agent # Docker image repository
     tag: latest # Tag for docker image of agent
   mode: "kafka" # Take values from: [kafka, websocket]
-  replicas: 1 # Number of pods to run
+  replicas: 3 # Number of pods to run
   resources:
     requests:
       cpu: 500m # CPU request for agent pod
       memory: 1Gi # Memory request for agent pod
     limits:
-      cpu: 1000m # CPU limit for agent pod
+      cpu: 3000m # CPU limit for agent pod
       memory: 3Gi # Memory limit for agent pod
   websocket:
     token: # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)
@@ -96,8 +96,8 @@ datadog:
     # datadog.containerExclude -- Exclude containers from the Agent
     # Autodiscovery, as a space-sepatered list
     ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#exclude-containers
-    containerExclude: "kube_namespace:kube-system kube_namespace:prometheus kube_namespace:datadog image:datadog/agent"
-    containerInclude: "kube_namespace:entitle"
+    containerExclude: "name:.*"
+    containerInclude: "name:entitle-agent.*"
 
     ## Enable process agent and provide custom configs
     processAgent:
