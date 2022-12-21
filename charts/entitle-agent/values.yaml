@@ -30,7 +30,7 @@ global:
 agent:
   image:
     repository: ghcr.io/anycred/entitle-agent # Docker image repository
-    tag: feature-ICH-876-add-azure-kms-to-ichilov-startup-options # Tag for docker image of agent TODO:change to latest
+    tag: latest # Tag for docker image of agent
   mode: "kafka" # Take values from: [kafka, websocket]
   replicas: 1 # Number of pods to run
   resources:
