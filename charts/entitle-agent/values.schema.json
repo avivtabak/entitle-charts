@@ -22,51 +22,93 @@
           "default": "aws",
           "enum": [
             "gcp",
-            "aws"
+            "aws",
+            "azure"
           ]
         }
       },
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "aws"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "aws": {
-            "type": "object",
-            "required": [
-              "iamRole"
-            ],
+      "allOf": [
+        {
+          "if": {
             "properties": {
-              "iamRole": {
-                "type": "string"
+              "mode": {
+                "const": "aws"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aws": {
+                "type": "object",
+                "required": [
+                  "iamRole"
+                ],
+                "properties": {
+                  "iamRole": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "gcp"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "gke": {
+                "type": "object",
+                "required": [
+                  "serviceAccount",
+                  "projectId"
+                ],
+                "properties": {
+                  "serviceAccount": {
+                    "type": "string"
+                  },
+                  "projectId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "azure"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "azure": {
+                "type": "object",
+                "required": [
+                  "clientId",
+                  "keyVaultName"
+                ],
+                "properties": {
+                  "clientId": {
+                    "type": "string"
+                  },
+                  "keyVaultName": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         }
-      },
-      "else": {
-        "properties": {
-          "gke": {
-            "type": "object",
-            "required": [
-              "serviceAccount",
-              "projectId"
-            ],
-            "properties": {
-              "serviceAccount": {
-                "type": "string"
-              },
-              "projectId": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      }
+      ]
     },
     "agent": {
       "type": "object",

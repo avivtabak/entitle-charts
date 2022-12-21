@@ -5,13 +5,16 @@
 imageCredentials: #Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
-  mode: gcp
+  mode: azure
   aws:
     iamRole: # IAM role for agent's service account annotations
   gke:
-    serviceAccount: "" # GKE service account for agent's service account annotations
-    projectId: "" # GCP project ID for agent's service account annotations
-
+    serviceAccount:  # GKE service account for agent's service account annotations
+    projectId:  # GCP project ID for agent's service account annotations
+  azure:
+    clientId: # Azure AD application client ID to be used with the pod.
+    tenantId: # Azure AD tenant ID to be used with the pod.
+    keyVaultName: # Name of the Azure Key Vault to be used for storing the agent secret.
 
 
 
@@ -27,15 +30,15 @@ global:
 agent:
   image:
     repository: ghcr.io/anycred/entitle-agent # Docker image repository
-    tag: latest # Tag for docker image of agent
+    tag: feature-ICH-876-add-azure-kms-to-ichilov-startup-options # Tag for docker image of agent TODO:change to latest
   mode: "kafka" # Take values from: [kafka, websocket]
   replicas: 1 # Number of pods to run
   resources:
     requests:
-      cpu: 500m # CPU request for agent pod
+      cpu: 1000m # CPU request for agent pod
       memory: 1Gi # Memory request for agent pod
     limits:
-      cpu: 1000m # CPU limit for agent pod
+      cpu: 5000m # CPU limit for agent pod
       memory: 3Gi # Memory limit for agent pod
   websocket:
     token: # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)

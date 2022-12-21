@@ -30,6 +30,9 @@ spec:
         tags.datadoghq.com/service: {{ include "entitle-agent.fullname" . }}-{{ .Values.global.environment }}
         tags.datadoghq.com/version: {{ include "entitle-agent.imageTag" .}}
         {{- include "entitle-agent.selectorLabels" . | nindent 8 }}
+        {{- if eq .Values.platform.mode "azure" }}
+        azure.workload.identity/use: "true"
+        {{- end }}
     spec:
       containers:
       - env:
@@ -57,6 +60,10 @@ spec:
               key: ENTITLE_JSON_CONFIGURATION
               optional: false
         {{- end }}
+        {{- if eq .Values.platform.mode "azure" }}
+        - name: KEY_VAULT_NAME
+          value: {{ .Values.platform.azure.keyVaultName }}
+        {{- end }}
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: Always
         name: {{ include "entitle-agent.fullname" . }}
@@ -67,7 +74,7 @@ spec:
             command:
               - python
               - scripts/healthcheck.py
-              - {{ include "entitle-agent.cloudPlatform" . }}
+              - {{ .Values.platform.mode }}
           initialDelaySeconds: 5
           timeoutSeconds: 10
       imagePullSecrets:
