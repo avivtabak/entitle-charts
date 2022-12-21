@@ -61,7 +61,7 @@ spec:
               optional: false
         {{- end }}
         {{- if eq .Values.platform.mode "azure" }}
-        - name: KEY_VAULT_NAME
+        - name: AZURE_KEY_VAULT_NAME
           value: {{ .Values.platform.azure.keyVaultName }}
         {{- end }}
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
