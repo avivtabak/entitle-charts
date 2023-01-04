@@ -8,7 +8,7 @@ platform:
   mode: azure
   aws:
     iamRole: # IAM role for agent's service account annotations
-  gke:
+  gcp:
     serviceAccount:  # GKE service account for agent's service account annotations
     projectId:  # GCP project ID for agent's service account annotations
   azure:
