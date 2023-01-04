@@ -420,7 +420,8 @@ If you don't have a managed identity created and assigned to your pod, perform t
     --set datadog.datadog.kubelet.tlsVerify=false \
     --set datadog.datadog.kubelet.host.valueFrom.fieldRef.fieldPath="spec.nodeName" \
     --set datadog.datadog.kubelet.hostCAPath="/etc/kubernetes/certs/kubeletserver.crt" \
-    --set platform.azure.clientId=${USER_ASSIGNED_CLIENT_ID} \--set platform.azure.tenantId=${TENANT_ID} \
+    --set platform.azure.clientId=${USER_ASSIGNED_CLIENT_ID} \
+    --set platform.azure.tenantId=${TENANT_ID} \
     --set platform.azure.keyVaultName=${KEY_VAULT_NAME} \
     --set agent.kafka.token="${TOKEN}" \
     -n ${NAMESPACE} --create-namespace

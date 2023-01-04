@@ -74,7 +74,6 @@ spec:
             command:
               - python
               - scripts/healthcheck.py
-              - {{ .Values.platform.mode }}
           initialDelaySeconds: 5
           timeoutSeconds: 10
       imagePullSecrets:
