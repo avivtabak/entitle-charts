@@ -85,6 +85,7 @@ export HTTPS_PROXY=localhost:8888
 
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
+  --set platform.mode="gcp" \
   --set imageCredentials="<IMAGE_CREDENTIALS>" \
   --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
@@ -98,6 +99,7 @@ If you set up environment variables you can use:
 
 ```shell
 helm upgrade --install entitle-agent entitle/entitle-agent \
+  --set platform.mode="gcp" \
   --set imageCredentials="${IMAGE_CREDENTIALS}" \
   --set datadog.datadog.apiKey="${DATADOG_API_KEY}" \
   --set datadog.providers.gke.autopilot="${AUTOPILOT}" \
@@ -253,6 +255,7 @@ export ORG_NAME=<YOUR ORGANIZATION NAME>
 export NAMESPACE=entitle
 
 helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set platform.mode="aws" \
     --set imageCredentials=${IMAGE_CREDENTIALS} \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \
@@ -270,6 +273,7 @@ export TOKEN=<TOKEN_FROM_ENTITLE>
 export ORG_NAME=<YOUR ORGANIZATION NAME>
 
 helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set platform.mode="aws" \
     --set imageCredentials=${IMAGE_CREDENTIALS} \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \
@@ -414,6 +418,7 @@ If you don't have a managed identity created and assigned to your pod, perform t
 
     ```shell
     helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set platform.mode="azure" \
     --set imageCredentials=${IMAGE_CREDENTIALS} \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \
@@ -430,6 +435,7 @@ If you don't have a managed identity created and assigned to your pod, perform t
     For backward compatibility, the for 0.x version, use:
     ```shell
     helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set platform.mode="azure" \
     --set imageCredentials=${IMAGE_CREDENTIALS} \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \

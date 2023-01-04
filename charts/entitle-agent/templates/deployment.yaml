@@ -75,7 +75,7 @@ spec:
               - python
               - scripts/healthcheck.py
           initialDelaySeconds: 5
-          timeoutSeconds: 10
+          timeoutSeconds: 30
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
