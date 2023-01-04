@@ -67,8 +67,10 @@ spec:
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: Always
         name: {{ include "entitle-agent.fullname" . }}
+        {{- with .Values.agent.resources }}
         resources:
-          {{- toYaml .Values.agent.resources | nindent 10 }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         startupProbe:
           exec:
             command:
