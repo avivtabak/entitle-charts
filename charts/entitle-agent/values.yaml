@@ -30,7 +30,7 @@ global:
 agent:
   image:
     repository: ghcr.io/anycred/entitle-agent # Docker image repository
-    tag: latest # Tag for docker image of agent
+    tag: feature-ICH-803-healthcheck #latest # Tag for docker image of agent
   mode: "kafka" # Take values from: [kafka, websocket]
   replicas: 1 # Number of pods to run
   resources:

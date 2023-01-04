@@ -359,10 +359,15 @@ If you don't have a managed identity created and assigned to your pod, perform t
     az provider register --namespace Microsoft.ContainerService
     ```
 4. Enabled AAD/OIDC/WORKLOAD IDENTITY for the cluster
+   
+    Verify that all the below not False/Null
     ```shell
    echo "$(az aks show -n ${CLUSTER_NAME} -g ${RESOURCE_GROUP} --query "oidcIssuerProfile.issuerUrl" -otsv)"
    echo "$(az aks show -n ${CLUSTER_NAME} -g ${RESOURCE_GROUP} --query "securityProfile.workloadIdentity" -otsv)"
    echo "$(az aks show -n ${CLUSTER_NAME} -g ${RESOURCE_GROUP} --query "aadProfile" -otsv)"
+   ```
+   If any of the above is False/Null, run the following command (with the right flags) to enable AAD/OIDC/WORKLOAD IDENTITY for the cluster:
+    ```shell
     az aks update --resource-group ${RESOURCE_GROUP} --name ${CLUSTER_NAME} --enable-aad --aad-admin-group-object-ids ${AAD_GROUP_OBJECT_ID}  --enable-workload-identity --enable-oidc-issuer
     ```
 5. Use the `az identity create` command to create a managed identity.
