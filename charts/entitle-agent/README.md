@@ -6,8 +6,6 @@ A Helm Chart for Entitle's Agent.
 ## Pre-Install
 
 ```shell
-helm dependency update charts/entitle-agent
-helm dependency build charts/entitle-agent
 helm repo add datadog https://helm.datadoghq.com
 helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
