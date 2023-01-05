@@ -5,9 +5,19 @@
     "imageCredentials",
     "platform",
     "agent",
-    "datadog"
+    "datadog",
+    "kmsType"
   ],
   "properties": {
+    "kmsType": {
+      "type": "string",
+      "enum": [
+        "aws_secret_manager",
+        "gcp_secret_manager",
+        "azure_secret_manager",
+        "hashicorp_vault"
+      ]
+    },
     "podAnnotations": {
       "type": "object"
     },

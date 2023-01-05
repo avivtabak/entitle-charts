@@ -43,12 +43,12 @@ spec:
               name: {{ include "entitle-agent.fullname" . }}-secret
               key: TOKEN
         - name: KMS_TYPE
-          value: {{ include "entitle-agent.kmsType" . }}
+          value: {{ .Values.kmsType }}
         {{- else }}
         - name: ENTITLE_WEBSOCKET_ENABLED
           value: "false"
         - name: ENTITLE_KMS_TYPE
-          value: {{ include "entitle-agent.kmsType" . }}
+          value: {{ .Values.kmsType }}
         {{- if .Values.agent.kafka.bootstrapServers }}
         - name: ENTITLE_KAFKA_BOOTSTRAP_SERVERS
           value: {{ .Values.agent.kafka.bootstrapServers }}

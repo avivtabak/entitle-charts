@@ -74,20 +74,6 @@ azure.workload.identity/tenant-id: {{ .Values.platform.azure.tenantId }}
 {{- end }}
 {{- end }}
 
-
-{{/*
-KMS type
-*/}}
-{{- define "entitle-agent.kmsType" -}}
-{{- if eq .Values.platform.mode "aws" -}}
-{{- default "aws_secret_manager"}}
-{{- else if eq .Values.platform.mode "gcp" -}}
-{{- default "gcp_secret_manager"}}
-{{- else -}}
-{{- default "azure_secret_manager"}}
-{{- end }}
-{{- end }}
-
 {{/*
 Image Tag
 */}}
