@@ -140,9 +140,14 @@
       "required": [
         "mode",
         "image",
-        "replicas"
+        "replicas",
+        "logTrace"
       ],
       "properties": {
+        "logTrace": {
+          "type": "boolean",
+          "default": true
+        },
         "mode": {
           "type": "string",
           "default": "kafka",
@@ -254,9 +259,14 @@
       "datadog": {
         "type": "object",
         "required": [
-          "apiKey"
+          "apiKey",
+          "daemonSet"
         ],
         "properties": {
+          "daemonSet": {
+            "type": "boolean",
+            "default": false
+          },
           "apiKey": {
             "type": "string"
           }
