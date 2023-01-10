@@ -63,6 +63,10 @@ spec:
             value: ""
           - name: KUBERNETES
             value: ""
+          - name: DD_LOGS_ENABLED
+            value: "true"
+          - name: DD_LOG_LEVEL
+            value: "debug"
         volumeMounts:
           - name: datadog-configmap
             mountPath: /conf.d/python.d
