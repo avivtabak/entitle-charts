@@ -41,9 +41,9 @@ spec:
         - name: datadog-configmap
           configMap:
             name: {{ include "entitle-agent.fullname" . }}-datadog-configuration
-
+      {{- end }}
       containers:
-
+      {{- if eq .Values.datadog.daemonSet false }}
       - name: datadog-agent
         image: gcr.io/datadoghq/agent:latest
         imagePullPolicy: IfNotPresent
