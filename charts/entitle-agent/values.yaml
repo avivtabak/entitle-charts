@@ -24,6 +24,9 @@ nodeSelector: {} # https://kubernetes.io/docs/concepts/scheduling-eviction/assig
 
 kmsType:
 
+externalKmsParams:
+  hashicorpVaultConnectionString: # example: "https://<token>@1.2.3.4:8200"
+
 global:
   environment: "onprem" # Used for metadata of deployment
 

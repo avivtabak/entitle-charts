@@ -36,6 +36,13 @@ spec:
     spec:
       containers:
       - env:
+        {{- if eq .Values.kmsType "hashicorp_vault" }}
+        - name: HASHICORP_VAULT_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "entitle-agent.fullname" . }}-hashicorp-vault-secret
+              key: HASHICORP_VAULT_CONNECTION_STRING
+        {{- end }}
         {{- if eq .Values.agent.mode "websocket" }}
         - name: TOKEN
           valueFrom:
