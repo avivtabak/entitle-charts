@@ -21,9 +21,15 @@
     "externalKmsParams": {
       "type": "object",
       "properties": {
-        "hashicorpVaultConnectionString": {
-          "type": ["string", "null"],
-          "default": null
+        "hashicorp": {
+          "type": ["object", "null"],
+          "default": null,
+          "properties": {
+            "connectionString": {
+              "type": ["string", "null"],
+              "default": null
+            }
+          }
         }
       }
     },
