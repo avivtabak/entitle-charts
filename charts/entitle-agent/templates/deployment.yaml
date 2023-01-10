@@ -78,13 +78,13 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        startupProbe:
-          exec:
-            command:
-              - python
-              - scripts/healthcheck.py
-          initialDelaySeconds: 5
-          timeoutSeconds: 30
+#        startupProbe:
+#          exec:
+#            command:
+#              - python
+#              - scripts/healthcheck.py
+#          initialDelaySeconds: 5
+#          timeoutSeconds: 30
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
