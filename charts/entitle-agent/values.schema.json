@@ -18,6 +18,21 @@
         "hashicorp_vault"
       ]
     },
+    "externalKmsParams": {
+      "type": "object",
+      "properties": {
+        "hashicorp": {
+          "type": ["object", "null"],
+          "default": null,
+          "properties": {
+            "connectionString": {
+              "type": ["string", "null"],
+              "default": null
+            }
+          }
+        }
+      }
+    },
     "podAnnotations": {
       "type": "object"
     },
