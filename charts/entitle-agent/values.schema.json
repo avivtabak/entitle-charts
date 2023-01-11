@@ -22,11 +22,17 @@
       "type": "object",
       "properties": {
         "hashicorp": {
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "default": null,
           "properties": {
             "connectionString": {
-              "type": ["string", "null"],
+              "type": [
+                "string",
+                "null"
+              ],
               "default": null
             }
           }
@@ -140,14 +146,9 @@
       "required": [
         "mode",
         "image",
-        "replicas",
-        "logTrace"
+        "replicas"
       ],
       "properties": {
-        "logTrace": {
-          "type": "boolean",
-          "default": true
-        },
         "mode": {
           "type": "string",
           "default": "kafka",
