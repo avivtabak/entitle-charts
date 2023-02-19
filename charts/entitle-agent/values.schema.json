@@ -22,17 +22,11 @@
       "type": "object",
       "properties": {
         "hashicorp": {
-          "type": [
-            "object",
-            "null"
-          ],
+          "type": ["object", "null"],
           "default": null,
           "properties": {
             "connectionString": {
-              "type": [
-                "string",
-                "null"
-              ],
+              "type": ["string", "null"],
               "default": null
             }
           }
@@ -54,7 +48,8 @@
           "enum": [
             "gcp",
             "aws",
-            "azure"
+            "azure",
+            "none"
           ]
         }
       },

@@ -43,55 +43,13 @@ spec:
             name: {{ include "entitle-agent.fullname" . }}-datadog-configuration
       {{- end }}
       containers:
-      {{- if eq .Values.datadog.daemonSet false }}
-      - name: datadog-agent
-        image: gcr.io/datadoghq/agent:latest
-        imagePullPolicy: IfNotPresent
-        env:
-          - name: DD_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ include "entitle-agent.fullname" . }}-datadog-secret
-                key: DD_API_KEY
-          - name: DD_TAGS
-            value: {{.Values.datadog.datadog.tags | quote}}
-          - name: DD_HOSTNAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: KUBERNETES_SERVICE_PORT
-            value: ""
-          - name: KUBERNETES
-            value: ""
-          - name: DD_LOGS_ENABLED
-            value: "true"
-          - name: DD_LOG_LEVEL
-            value: "debug"
-        volumeMounts:
-          - name: datadog-configmap
-            mountPath: /conf.d/python.d
-          - name: entitle-agent-logs
-            mountPath: /var/log/entitle-agent
-            readOnly: true
-      {{- end }}
-
-
-      - name: {{ include "entitle-agent.fullname" . }}
-        image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
-        imagePullPolicy: Always
-        env:
+      - env:
         {{- if eq .Values.kmsType "hashicorp_vault" }}
         - name: HASHICORP_VAULT_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
               name: {{ include "entitle-agent.fullname" . }}-hashicorp-vault-secret
               key: HASHICORP_VAULT_CONNECTION_STRING
-        {{- end }}
-        {{- if eq .Values.datadog.daemonSet false }}
-        - name: ENTITLE_LOG_TO_FILE
-          value: "true"
-        - name: ENTITLE_LOG_FILE
-          value: /var/log/entitle-agent/entitle-agent.log
         {{- end }}
         {{- if eq .Values.agent.mode "websocket" }}
         - name: TOKEN
@@ -128,19 +86,42 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-{{/*        startupProbe: TODO:restore*/}}
-{{/*          exec:*/}}
-{{/*            command:*/}}
-{{/*              - python*/}}
-{{/*              - scripts/healthcheck.py*/}}
-{{/*          initialDelaySeconds: 5*/}}
-{{/*          timeoutSeconds: 30*/}}
         {{- if eq .Values.datadog.daemonSet false }}
         volumeMounts:
           - mountPath: /var/log/entitle-agent
             name: entitle-agent-logs
         {{- end }}
-
+      {{- if eq .Values.datadog.daemonSet false }}
+      - name: datadog-agent
+        image: gcr.io/datadoghq/agent:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: DD_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "entitle-agent.fullname" . }}-datadog-secret
+                key: DD_API_KEY
+          - name: DD_TAGS
+            value: {{.Values.datadog.datadog.tags | quote}}
+          - name: DD_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: KUBERNETES_SERVICE_PORT
+            value: ""
+          - name: KUBERNETES
+            value: ""
+          - name: DD_LOGS_ENABLED
+            value: "true"
+          - name: DD_LOG_LEVEL
+            value: "debug"
+        volumeMounts:
+          - name: datadog-configmap
+            mountPath: /conf.d/python.d
+          - name: entitle-agent-logs
+            mountPath: /var/log/entitle-agent
+            readOnly: true
+      {{- end }}
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}

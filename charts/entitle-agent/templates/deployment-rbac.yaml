@@ -37,4 +37,4 @@ rules:
     resources:
       - serviceaccounts
     resourceNames:
-        - {{ include "entitle-agent.serviceAccountName" . }}
+      - {{ include "entitle-agent.serviceAccountName" . }}

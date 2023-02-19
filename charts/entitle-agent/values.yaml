@@ -5,7 +5,7 @@
 imageCredentials: #Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
-  mode: azure
+  mode: none
   aws:
     iamRole: # IAM role for agent's service account annotations
   gcp:
@@ -36,7 +36,7 @@ agent:
     repository: ghcr.io/anycred/entitle-agent # Docker image repository
     tag: latest # Tag for docker image of agent
   mode: "kafka" # Take values from: [kafka, websocket]
-  replicas: 1 # Number of pods to run
+  replicas: 3 # Number of pods to run
   resources:
     requests:
       cpu: 1000m # CPU request for agent pod

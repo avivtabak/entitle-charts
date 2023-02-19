@@ -68,9 +68,10 @@ Service Accounts annotations
 eks.amazonaws.com/role-arn: {{ .Values.platform.aws.iamRole }}
 {{- else if eq .Values.platform.mode "gcp" -}}
 iam.gke.io/gcp-service-account: {{ printf "%s@%s.iam.gserviceaccount.com" .Values.platform.gke.serviceAccount .Values.platform.gke.projectId | quote}}
-{{- else -}}
+{{- else if eq .Values.platform.mode "azure" -}}
 azure.workload.identity/client-id: {{ .Values.platform.azure.clientId }}
 azure.workload.identity/tenant-id: {{ .Values.platform.azure.tenantId }}
+{{- else -}}
 {{- end }}
 {{- end }}
 
