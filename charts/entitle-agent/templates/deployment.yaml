@@ -34,14 +34,6 @@ spec:
         azure.workload.identity/use: "true"
         {{- end }}
     spec:
-      {{- if eq .Values.datadog.daemonSet false }}
-      volumes:
-        - name: entitle-agent-logs
-          emptyDir: {}
-        - name: datadog-configmap
-          configMap:
-            name: {{ include "entitle-agent.fullname" . }}-datadog-configuration
-      {{- end }}
       containers:
       - env:
         {{- if eq .Values.kmsType "hashicorp_vault" }}
@@ -79,6 +71,10 @@ spec:
         - name: AZURE_KEY_VAULT_NAME
           value: {{ .Values.platform.azure.keyVaultName }}
         {{- end }}
+        {{- if eq .Values.datadog.daemonSet false }}
+        - name: ENTITLE_LOG_TO_FILE
+          value: "true"
+        {{- end }}
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: Always
         name: {{ include "entitle-agent.fullname" . }}
@@ -94,7 +90,7 @@ spec:
       {{- if eq .Values.datadog.daemonSet false }}
       - name: datadog-agent
         image: gcr.io/datadoghq/agent:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
           - name: DD_API_KEY
             valueFrom:
@@ -107,10 +103,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-          - name: KUBERNETES_SERVICE_PORT
-            value: ""
-          - name: KUBERNETES
-            value: ""
           - name: DD_LOGS_ENABLED
             value: "true"
           - name: DD_LOG_LEVEL
@@ -127,5 +119,13 @@ spec:
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if eq .Values.datadog.daemonSet false }}
+      volumes:
+        - name: entitle-agent-logs
+          emptyDir: {}
+        - name: datadog-configmap
+          configMap:
+            name: {{ include "entitle-agent.fullname" . }}-datadog-config
       {{- end }}
       serviceAccountName: {{ include "entitle-agent.serviceAccountName" .}}
