@@ -19,6 +19,7 @@ spec:
     metadata:
       annotations:
         checksum/docker-login: {{ include (print $.Template.BasePath "/docker-login.yaml") . | sha256sum }}
+        checksum/datadog-config: {{ include (print $.Template.BasePath "/datadog-configmap.yaml") . | sha256sum }}
         ad.datadoghq.com/{{ include "entitle-agent.fullname" . }}.logs: '[{"source": "{{ include "entitle-agent.fullname" . }}"}]'
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -107,6 +108,12 @@ spec:
             value: "true"
           - name: DD_LOG_LEVEL
             value: "debug"
+          # Disables Kubernetes metrics collection (DO NOT REMOVE)
+          - name: KUBERNETES
+            value: ""
+          - name: KUBERNETES_SERVICE_PORT
+            value: ""
+          # Disables Kubernetes metrics collection (DO NOT REMOVE)
         volumeMounts:
           - name: datadog-configmap
             mountPath: /conf.d/python.d
