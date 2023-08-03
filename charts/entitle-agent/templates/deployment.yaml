@@ -92,11 +92,9 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if eq .Values.datadog.daemonSet false }}
         volumeMounts:
           - mountPath: /var/log/entitle-agent
             name: entitle-agent-logs
-        {{- end }}
       {{- if eq .Values.datadog.daemonSet false }}
       - name: datadog-agent
         image: gcr.io/datadoghq/agent:latest
@@ -136,12 +134,12 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq .Values.datadog.daemonSet false }}
       volumes:
         - name: entitle-agent-logs
           emptyDir: {}
+        {{- if eq .Values.datadog.daemonSet false }}
         - name: datadog-configmap
           configMap:
             name: {{ include "entitle-agent.fullname" . }}-datadog-config
-      {{- end }}
+        {{- end }}
       serviceAccountName: {{ include "entitle-agent.serviceAccountName" .}}
