@@ -139,19 +139,11 @@
     "agent": {
       "type": "object",
       "required": [
-        "mode",
+        "token",
         "image",
         "replicas"
       ],
       "properties": {
-        "mode": {
-          "type": "string",
-          "default": "kafka",
-          "enum": [
-            "kafka",
-            "websocket"
-          ]
-        },
         "replicas": {
           "type": "integer",
           "minimum": 1
@@ -199,43 +191,6 @@
             "repository",
             "tag"
           ]
-        }
-      },
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "kafka"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "kafka": {
-            "type": "object",
-            "required": [
-              "token"
-            ],
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "else": {
-        "properties": {
-          "websocket": {
-            "type": "object",
-            "required": [
-              "token"
-            ],
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            }
-          }
         }
       }
     }

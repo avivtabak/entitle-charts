@@ -43,17 +43,6 @@ spec:
               name: {{ include "entitle-agent.fullname" . }}-hashicorp-vault-secret
               key: HASHICORP_VAULT_CONNECTION_STRING
         {{- end }}
-        {{- if eq .Values.agent.mode "websocket" }}
-        - name: TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: {{ include "entitle-agent.fullname" . }}-secret
-              key: TOKEN
-        - name: KMS_TYPE
-          value: {{ .Values.kmsType }}
-        {{- else }}
-        - name: ENTITLE_WEBSOCKET_ENABLED
-          value: "false"
         - name: ENTITLE_KMS_TYPE
           value: {{ .Values.kmsType }}
         {{- if .Values.agent.kafka.bootstrapServers }}
@@ -66,7 +55,6 @@ spec:
               name: {{ include "entitle-agent.fullname" . }}-secret
               key: ENTITLE_JSON_CONFIGURATION
               optional: false
-        {{- end }}
         {{- if eq .Values.platform.mode "azure" }}
         - name: AZURE_KEY_VAULT_NAME
           value: {{ .Values.platform.azure.keyVaultName }}
@@ -78,6 +66,20 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+        startupProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck/healthcheck.py
+          timeoutSeconds: 30
+        livenessProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck/healthcheck.py
+          initialDelaySeconds: 30
+          periodSeconds: 3600
+          timeoutSeconds: 30
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
