@@ -36,6 +36,8 @@ spec:
     spec:
       containers:
       - env:
+        - name: ENV_FOR_DYNACONF
+          value: "qa"
         {{- if eq .Values.kmsType "hashicorp_vault" }}
         - name: HASHICORP_VAULT_CONNECTION_STRING
           valueFrom:
@@ -70,10 +72,16 @@ spec:
           exec:
             command:
               - python
-              - scripts/healthcheck.py
-              - aws
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
+              - scripts/healthcheck/healthcheck.py
+          timeoutSeconds: 30
+        livenessProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck/healthcheck.py
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          timeoutSeconds: 30
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}

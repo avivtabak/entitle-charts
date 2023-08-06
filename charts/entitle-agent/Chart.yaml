@@ -5,6 +5,7 @@ icon: https://app.entitle.io/favicon.ico
 
 dependencies:
   - name: datadog
+    condition: datadog.enabled
     version: "2.30.16"
     repository: https://helm.datadoghq.com
 
