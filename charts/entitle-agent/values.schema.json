@@ -10,7 +10,7 @@
   ],
   "properties": {
     "kmsType": {
-      "type": "string",
+      "type": ["string", "null"],
       "enum": [
         "aws_secret_manager",
         "gcp_secret_manager",
