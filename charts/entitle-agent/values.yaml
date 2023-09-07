@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-imageCredentials:  # Credentials you've received upon agent installation (Contact us for more info)
+imageCredentials: none  # Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
   mode: none
@@ -21,7 +21,7 @@ podAnnotations: {}  # https://kubernetes.io/docs/concepts/overview/working-with-
 
 nodeSelector: {}  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 
-kmsType:
+kmsType: none
 
 externalKmsParams:
   hashicorp:
