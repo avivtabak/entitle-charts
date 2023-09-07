@@ -19,7 +19,7 @@
       ]
     },
     "imageCredentials": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "externalKmsParams": {
       "type": "object",
