@@ -18,6 +18,9 @@
         "hashicorp_vault"
       ]
     },
+    "imageCredentials": {
+      "type": "string"
+    },
     "externalKmsParams": {
       "type": "object",
       "properties": {
