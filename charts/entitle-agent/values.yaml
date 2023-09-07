@@ -2,12 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-imageCredentials: # Credentials you've received upon agent installation (Contact us for more info)
+imageCredentials:  # Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
   mode: none
   aws:
-    iamRole: # IAM role for agent's service account annotations
+    iamRole:  # IAM role for agent's service account annotations
   gcp:
     serviceAccount:  # GKE service account for agent's service account annotations
     projectId:  # GCP project ID for agent's service account annotations
@@ -15,7 +15,6 @@ platform:
     clientId:  # Azure AD application client ID to be used with the pod.
     tenantId:  # Azure AD tenant ID to be used with the pod.
     keyVaultName:  # Name of the Azure Key Vault to be used for storing the agent secret.
-
 
 
 podAnnotations: {}  # https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
@@ -33,22 +32,22 @@ global:
 
 agent:
   image:
-    repository: ghcr.io/anycred/entitle-agent # Docker image repository
-    tag: latest # Tag for docker image of agent
-  mode: "kafka" # Take values from: [kafka, websocket]
-  replicas: 3 # Number of pods to run
+    repository: ghcr.io/anycred/entitle-agent  # Docker image repository
+    tag: latest  # Tag for docker image of agent
+  mode: "kafka"  # Take values from: [kafka, websocket]
+  replicas: 3  # Number of pods to run
   resources:
     requests:
-      cpu: 1000m # CPU request for agent pod
-      memory: 1Gi # Memory request for agent pod
+      cpu: 1000m  # CPU request for agent pod
+      memory: 1Gi  # Memory request for agent pod
     limits:
-      cpu: 5000m # CPU limit for agent pod
-      memory: 3Gi # Memory limit for agent pod
+      cpu: 5000m  # CPU limit for agent pod
+      memory: 3Gi  # Memory limit for agent pod
   websocket:
-    token: # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)
+    token:  # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)
   kafka:
     bootstrapServers:  # Kafka public bootstrap servers
-    token: "" # Credentials you've received upon agent installation (Contact us for more info)
+    token: ""  # Credentials you've received upon agent installation (Contact us for more info)
 ############################################################
 datadog:
   ## This is the Datadog Cluster Agent implementation that handles cluster-wide
@@ -57,12 +56,12 @@ datadog:
   ## ref: https://docs.datadoghq.com/agent/kubernetes/cluster/
   providers:
     gke:
-      autopilot: false #Whether to enable autopilot or not
+      autopilot: false  # Whether to enable autopilot or not
   clusterAgent:
     # clusterAgent.enabled -- Set this to false to disable Datadog Cluster Agent
     enabled: false
   datadog:
-    apiKey: # Datadog API key
+    apiKey:  # Datadog API key
     # datadog.tags -- List of static tags to attach to every metric, event and service check collected by this Agent.
     ## Learn more about tagging: https://docs.datadoghq.com/tagging/
     tags: []
