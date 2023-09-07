@@ -443,27 +443,6 @@ If you don't have a managed identity created and assigned to your pod, perform t
     --set agent.kafka.token="${TOKEN}" \
     -n ${NAMESPACE} --create-namespace
     ```
-
-  For backward compatibility, the for 0.x version, use:
-    ```shell
-    helm upgrade --install entitle-agent entitle/entitle-agent \
-    --set platform.mode="azure" \
-    --set kmsType="azure_secret_manager" \
-    --set imageCredentials=${IMAGE_CREDENTIALS} \
-    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
-    --set datadog.datadog.tags={company:${ORG_NAME}} \
-    --set datadog.datadog.kubelet.tlsVerify=false \
-    --set datadog.datadog.kubelet.host.valueFrom.fieldRef.fieldPath="spec.nodeName" \
-    --set datadog.datadog.kubelet.hostCAPath="/etc/kubernetes/certs/kubeletserver.crt" \
-    --set platform.azure.clientId=${USER_ASSIGNED_CLIENT_ID} \
-    --set platform.azure.tenantId=${TENANT_ID} \
-    --set platform.azure.keyVaultName=${KEY_VAULT_NAME} \
-    --set agent.mode=websocket \
-    --set agent.websocket.token="${TOKEN}" \
-    -n ${NAMESPACE} --create-namespace
-    ```
-    - [Why do I need to set datadog.kubelet options?](https://docs.datadoghq.com/containers/kubernetes/distributions/?tab=helm)
-
 </details>
 
 ## Configuration
