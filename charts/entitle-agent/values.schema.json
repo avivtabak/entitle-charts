@@ -16,7 +16,8 @@
         "gcp_secret_manager",
         "azure_secret_manager",
         "hashicorp_vault",
-        "none"
+        "kubernetes_secret_manager",
+        null
       ]
     },
     "imageCredentials": {
@@ -53,7 +54,7 @@
             "gcp",
             "aws",
             "azure",
-            "none"
+            null
           ]
         }
       },

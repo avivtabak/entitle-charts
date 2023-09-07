@@ -2,10 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-imageCredentials: none  # Credentials you've received upon agent installation (Contact us for more info)
+imageCredentials: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
-  mode: none
+  mode: null  # Cloud platform where Entitle is installed (Contact us for more info)
   aws:
     iamRole:  # IAM role for agent's service account annotations
   gcp:
@@ -21,7 +21,7 @@ podAnnotations: {}  # https://kubernetes.io/docs/concepts/overview/working-with-
 
 nodeSelector: {}  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 
-kmsType: none
+kmsType: null  # Key Management Service to store internal Entitle secrets (Contact us for more info)
 
 externalKmsParams:
   hashicorp:
