@@ -46,7 +46,7 @@ agent:
       memory: 3Gi  # Memory limit for agent pod
   kafka:
     bootstrapServers:  # Kafka public bootstrap servers
-    token: ""  # Credentials you've received upon agent installation (Contact us for more info)
+    token: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
 ############################################################
 
 datadog:
