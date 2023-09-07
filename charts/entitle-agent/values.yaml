@@ -31,7 +31,7 @@ global:
   environment: "onprem"  # Used for metadata of deployment
 
 agent:
-  token:  # Credentials you've received upon agent installation (Contact us for more info)
+  token: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
   image:
     repository: ghcr.io/anycred/entitle-agent  # Docker image repository
     tag: latest  # Tag for docker image of agent
