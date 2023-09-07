@@ -17,7 +17,7 @@
         "azure_secret_manager",
         "hashicorp_vault",
         "kubernetes_secret_manager",
-        "MISSING_KEY_MANAGEMENT"
+        "MISSING_CUSTOMER_DATA"
       ]
     },
     "imageCredentials": {
