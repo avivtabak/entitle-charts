@@ -10,7 +10,7 @@
   ],
   "properties": {
     "kmsType": {
-      "type": "string",
+      "type": ["string", null],
       "enum": [
         "aws_secret_manager",
         "gcp_secret_manager",
@@ -21,7 +21,7 @@
       ]
     },
     "imageCredentials": {
-      "type": "string"
+      "type": ["string", null]
     },
     "externalKmsParams": {
       "type": "object",
@@ -48,7 +48,7 @@
       "type": "object",
       "properties": {
         "mode": {
-          "type": "string",
+          "type": ["string", null],
           "default": "aws",
           "enum": [
             "gcp",
