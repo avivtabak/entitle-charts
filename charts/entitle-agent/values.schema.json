@@ -15,7 +15,8 @@
         "aws_secret_manager",
         "gcp_secret_manager",
         "azure_secret_manager",
-        "hashicorp_vault"
+        "hashicorp_vault",
+        "none"
       ]
     },
     "imageCredentials": {
