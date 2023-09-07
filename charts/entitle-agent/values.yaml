@@ -44,9 +44,9 @@ agent:
     limits:
       cpu: 5000m  # CPU limit for agent pod
       memory: 3Gi  # Memory limit for agent pod
-
   kafka:
     bootstrapServers:  # Kafka public bootstrap servers
+    token: "" # Credentials you've received upon agent installation (Contact us for more info)
 ############################################################
 
 datadog:
