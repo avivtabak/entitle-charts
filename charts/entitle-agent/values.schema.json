@@ -10,18 +10,18 @@
   ],
   "properties": {
     "kmsType": {
-      "type": ["string", null],
+      "type": "string",
       "enum": [
         "aws_secret_manager",
         "gcp_secret_manager",
         "azure_secret_manager",
         "hashicorp_vault",
         "kubernetes_secret_manager",
-        null
+        "MISSING_KEY_MANAGEMENT"
       ]
     },
     "imageCredentials": {
-      "type": ["string", null]
+      "type": "string"
     },
     "externalKmsParams": {
       "type": "object",
@@ -48,13 +48,13 @@
       "type": "object",
       "properties": {
         "mode": {
-          "type": ["string", null],
+          "type": "string",
           "default": "aws",
           "enum": [
             "gcp",
             "aws",
             "azure",
-            null
+            "MISSING_CUSTOMER_DATA"
           ]
         }
       },

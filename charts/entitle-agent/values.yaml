@@ -5,7 +5,7 @@
 imageCredentials: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
-  mode: null  # Cloud platform where Entitle is installed (Contact us for more info)
+  mode: "MISSING_CUSTOMER_DATA"  # Cloud platform where Entitle is installed (Contact us for more info)
   aws:
     iamRole:  # IAM role for agent's service account annotations
   gcp:
@@ -21,7 +21,7 @@ podAnnotations: {}  # https://kubernetes.io/docs/concepts/overview/working-with-
 
 nodeSelector: {}  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 
-kmsType: null  # Key Management Service to store internal Entitle secrets (Contact us for more info)
+kmsType: "MISSING_CUSTOMER_DATA"  # Key Management Service to store internal Entitle secrets (Contact us for more info)
 
 externalKmsParams:
   hashicorp:
