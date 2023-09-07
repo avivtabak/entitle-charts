@@ -2,8 +2,7 @@ name: Lint and Test Charts
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [ '**' ]
 
 jobs:
   lint-test:
