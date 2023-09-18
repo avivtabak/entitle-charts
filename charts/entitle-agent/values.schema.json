@@ -12,11 +12,11 @@
     "kmsType": {
       "type": "string",
       "enum": [
+        "kubernetes_secret_manager",
         "aws_secret_manager",
         "gcp_secret_manager",
         "azure_secret_manager",
         "hashicorp_vault",
-        "kubernetes_secret_manager",
         "MISSING_CUSTOMER_DATA"
       ]
     },
@@ -54,6 +54,7 @@
             "gcp",
             "aws",
             "azure",
+            "native",
             "MISSING_CUSTOMER_DATA"
           ]
         }

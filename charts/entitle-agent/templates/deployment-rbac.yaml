@@ -43,4 +43,10 @@ rules:
     apiGroups:
       - '*'
     resources:
-      - jobs, secrets
+      - jobs
+  - verbs:
+      - '*'
+    apiGroups:
+      - '*'
+    resources:
+      - secrets
