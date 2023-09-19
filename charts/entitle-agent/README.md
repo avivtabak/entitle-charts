@@ -11,9 +11,46 @@ helm repo add entitle https://anycred.github.io/entitle-charts/
 ```
 
 <details>
-<summary> GCP Installation </summary>
+<summary> Kubernetes Secret Manager Installation (Default) </summary>
 
-## GCP installation
+## Kubernetes Secret Manager Installation (Default)
+
+### General Note
+Kubernetes Secret Manager is the default secret manager even if your K8s cluster is hosted on GCP/AWS/Azure.
+
+### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
+
+Helm Chart installation:
+
+- `imageCredentials` and `agent.token` are given to you by Entitle
+- Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
+- You can replace namespace `entitle` with your own namespace, but it's highly discouraged
+
+```shell
+export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
+export DATADOG_API_KEY=<DATADOG_API_KEY_FROM_ENTITLE>
+export TOKEN=<TOKEN_FROM_ENTITLE>
+export ORG_NAME=<YOUR ORGANIZATION NAME>
+export NAMESPACE=entitle
+
+helm upgrade --install entitle-agent entitle/entitle-agent \
+    --set kmsType="kubernetes_secret_manager" \
+    --set imageCredentials=${IMAGE_CREDENTIALS} \
+    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
+    --set datadog.datadog.tags={company:${ORG_NAME}} \
+    --set agent.token="${TOKEN}" \
+    -n ${NAMESPACE} --create-namespace
+```
+
+<br /><br />
+You are ready to go!
+
+</details>
+
+<details>
+<summary> GCP Secret Manager Installation </summary>
+
+## GCP Secret Manager installation
 
 ### A. Workload Identity
 
@@ -72,7 +109,7 @@ In the following: If AutoPilot is enabled, replace --zone with --region
 
 ### C. [GCP Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 
-- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
+- `imageCredentials` and `agent.token` are given to you by Entitle
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
 
 - If you have installed Entitle's Terraform IaC, you need to set up proxy(after [Setting up IAP-tunnel](#setting-up-iap-tunnel)):
@@ -91,7 +128,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.datadog.apiKey="<DATADOG_API_KEY>" \
   --set platform.gke.serviceAccount="<ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME>" \
   --set platform.gke.projectId="<PROJECT_ID>" \
-  --set agent.kafka.token="<TOKEN>" \
+  --set agent.token="<TOKEN>" \
   --set datadog.datadog.tags={company:<YOUR_ORG_NAME>} \
   -n "<NAMESPACE>" --create-namespace
 ```
@@ -107,7 +144,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
   --set datadog.providers.gke.autopilot="${AUTOPILOT}" \
   --set platform.gke.serviceAccount="${ENTITLE_AGENT_GKE_SERVICE_ACCOUNT_NAME}" \
   --set platform.gke.projectId="${PROJECT_ID}" \
-  --set agent.kafka.token="${TOKEN}" \
+  --set agent.token="${TOKEN}" \
   --set datadog.datadog.tags={company:${ORGANIZATION_NAME}} \
   -n "${NAMESPACE}" --create-namespace
 ```
@@ -115,9 +152,9 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
 </details>
 
 <details>
-<summary> AWS Installation </summary>
+<summary> AWS Secret Manager Installation </summary>
 
-## AWS installation
+## AWS Secret Manager installation
 
 ### First things first:
 
@@ -244,10 +281,10 @@ aws iam attach-role-policy --role-name entitle-agent-role --policy-arn=arn:aws:i
 
 Eventually, you can install our Helm chart:
 
-- `imageCredentials` and `agent.kafka.token` are given to you by Entitle
+- `imageCredentials` and `agent.token` are given to you by Entitle
 - Replace `platform.aws.iamRole` with Entitle's AWS IAM Role you've created
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
-- You can replace namespace `entitle` with your own namespace, but it's not recommended
+- You can replace namespace `entitle` with your own namespace, but it's highly discouraged
 - If you want to use hashicorp vault, set kmsType to `hashicorp_vault`
 
 ```shell
@@ -264,27 +301,7 @@ helm upgrade --install entitle-agent entitle/entitle-agent \
     --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
     --set datadog.datadog.tags={company:${ORG_NAME}} \
     --set platform.aws.iamRole="arn:aws:iam::${ACCOUNT_ID}:role/entitle-agent-role" \
-    --set agent.kafka.token="${TOKEN}" \
-    -n ${NAMESPACE} --create-namespace
-```
-
-For backward compatibility, the for 0.x version, use:
-
-```shell
-export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
-export DATADOG_API_KEY=<DATADOG_API_KEY_FROM_ENTITLE>
-export TOKEN=<TOKEN_FROM_ENTITLE>
-export ORG_NAME=<YOUR ORGANIZATION NAME>
-
-helm upgrade --install entitle-agent entitle/entitle-agent \
-    --set platform.mode="aws" \
-    --set kmsType="aws_secret_manager" \
-    --set imageCredentials=${IMAGE_CREDENTIALS} \
-    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
-    --set datadog.datadog.tags={company:${ORG_NAME}} \
-    --set platform.aws.iamRole="arn:aws:iam::${ACCOUNT_ID}:role/entitle-agent-role" \
-    --set agent.mode=websocket \
-    --set agent.websocket.token="${TOKEN}" \
+    --set agent.token="${TOKEN}" \
     -n ${NAMESPACE} --create-namespace
 ```
 
@@ -294,9 +311,9 @@ You are ready to go!
 </details>
 
 <details>
-<summary> Azure Installation </summary>
+<summary> Azure Secret Manager Installation </summary>
 
-## Azure installation
+## Azure Secret Manager installation
 
 By the end of installation, you will have fully working Entitle Agent on your Azure Kubernetes cluster.
 The installation will be based upon the follow reading materials:
@@ -440,60 +457,37 @@ If you don't have a managed identity created and assigned to your pod, perform t
     --set platform.azure.clientId=${USER_ASSIGNED_CLIENT_ID} \
     --set platform.azure.tenantId=${TENANT_ID} \
     --set platform.azure.keyVaultName=${KEY_VAULT_NAME} \
-    --set agent.kafka.token="${TOKEN}" \
+    --set agent.token="${TOKEN}" \
     -n ${NAMESPACE} --create-namespace
     ```
-
-  For backward compatibility, the for 0.x version, use:
-    ```shell
-    helm upgrade --install entitle-agent entitle/entitle-agent \
-    --set platform.mode="azure" \
-    --set kmsType="azure_secret_manager" \
-    --set imageCredentials=${IMAGE_CREDENTIALS} \
-    --set datadog.datadog.apiKey=${DATADOG_API_KEY} \
-    --set datadog.datadog.tags={company:${ORG_NAME}} \
-    --set datadog.datadog.kubelet.tlsVerify=false \
-    --set datadog.datadog.kubelet.host.valueFrom.fieldRef.fieldPath="spec.nodeName" \
-    --set datadog.datadog.kubelet.hostCAPath="/etc/kubernetes/certs/kubeletserver.crt" \
-    --set platform.azure.clientId=${USER_ASSIGNED_CLIENT_ID} \
-    --set platform.azure.tenantId=${TENANT_ID} \
-    --set platform.azure.keyVaultName=${KEY_VAULT_NAME} \
-    --set agent.mode=websocket \
-    --set agent.websocket.token="${TOKEN}" \
-    -n ${NAMESPACE} --create-namespace
-    ```
-    - [Why do I need to set datadog.kubelet options?](https://docs.datadoghq.com/containers/kubernetes/distributions/?tab=helm)
-
 </details>
 
 ## Configuration
 
 The following table lists the configurable parameters of the Entitle-agent chart and their default values.
 
-| Parameter                         | Description                                                                                                                          | Default                           | Required input by user            |
-|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------|
-| `imageCredentials`                | Credentials you've received upon agent installation (Contact us for more info)                                                       | `null`                            | `true`                            |
-| `kmsType`                         | KMS for agent to save secrets. Taken value from ["aws_secret_manager","gcp_secret_manager","azure_secret_manager","hashicorp_vault"] | `null`                            | `true`                            |
-| `platform.mode`                   | Take values from: [aws,gcp,azure]                                                                                                    | `"gcp"`                           | `true`                            |
-| `platform.aws.iamRole`            | IAM role for agent's service account annotations                                                                                     | `null`                            | `true` if `platform.mode="aws"`   |
-| `platform.gke.serviceAccount`     | GKE service account for agent's service account annotations                                                                          | `null`                            | `true` if `mode="platform.gcp"`   |
-| `platform.gke.projectId`          | GCP project ID for agent's service account annotations                                                                               | `null`                            | `true` if `mode="platform.gcp"`   |
-| `platform.azure.clientId`         | Azure AD application client ID to be used with the pod (USER_ASSIGNED_CLIENT_ID from above)                                          | `null`                            | `true` if `mode="platform.azure"` |
-| `platform.azure.tenantId`         | Azure AD tenant ID to be used with the pod.                                                                                          | `null`                            | `true` if `mode="platform.azure"` |
-| `platform.azure.keyVaultName`     | Name of the Azure Key Vault to be used for storing the agent secrets                                                                 | `null`                            | `true` if `mode="platform.azure"` |
-| `podAnnotations`                  | https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/                                                       | `{}`                              | `false`                           |
-| `nodeSelector`                    | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                                                | `{}`                              | `false`                           |
-| `global.environment`              | Used for metadata of deployment                                                                                                      | `"onprem"`                        | `false`                           |
-| `agent.image.repository`          | Docker image repository                                                                                                              | `"ghcr.io/anycred/entitle-agent"` | `false`                           |
-| `agent.image.tag`                 | Tag for docker image of agent                                                                                                        | `"master"`                        | `false`                           |
-| `agent.mode`                      | Take values from: [kafka, websocket]                                                                                                 | `"kafka"`                         | `false`                           |
-| `agent.replicas`                  | Number of pods to run                                                                                                                | `1`                               | `false`                           |
-| `agent.resources.requests.cpu`    | CPU request for agent pod                                                                                                            | `"500m"`                          | `false`                           |
-| `agent.resources.requests.memory` | Memory request for agent pod                                                                                                         | `"1Gi"`                           | `false`                           |
-| `agent.resources.limits.cpu`      | CPU limit for agent pod                                                                                                              | `"1000m"`                         | `false`                           |
-| `agent.resources.limits.memory`   | Memory limit for agent pod                                                                                                           | `"3Gi"`                           | `false`                           |
-| `agent.websocket.token`           | **Deprecated** [backward compatibility] Token you've received upon agent installation (Contact us for more info)                     | `null`                            | `false`                           |
-| `agent.kafka.token`               | Credentials you've received upon agent installation (Contact us for more info)                                                       | `null`                            | `true`                            |
-| `datadog.providers.gke.autopilot` | Whether to enable autopilot or not                                                                                                   | `false`                           | `false`                           |
-| `datadog.datadog.apiKey`          | Datadog API key                                                                                                                      | `null`                            | `true`                            |
-| `datadog.datadog.tags`            | Datadog Tag - Put your company name (https://docs.datadoghq.com/tagging/)                                                            | `null`                            | `true`                            |
+| Parameter                        | Description                                                                                                                                                      | Default                           | Required input by user            |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------|
+| `imageCredentials`               | Credentials you've received upon agent installation (Contact us for more info)                                                                                   | `null`                            | `true`                            |
+| `kmsType`                        | KMS for agent to save secrets. Take value from ["kubernetes_secret_manager", "aws_secret_manager","gcp_secret_manager","azure_secret_manager","hashicorp_vault"] | `null`                            | `true`                            |
+| `platform.mode`                  | Take values from: [aws,gcp,azure]                                                                                                                                | `"gcp"`                           | `true`                            |
+| `platform.aws.iamRole`           | IAM role for agent's service account annotations                                                                                                                 | `null`                            | `true` if `platform.mode="aws"`   |
+| `platform.gke.serviceAccount`    | GKE service account for agent's service account annotations                                                                                                      | `null`                            | `true` if `mode="platform.gcp"`   |
+| `platform.gke.projectId`         | GCP project ID for agent's service account annotations                                                                                                           | `null`                            | `true` if `mode="platform.gcp"`   |
+| `platform.azure.clientId`        | Azure AD application client ID to be used with the pod (USER_ASSIGNED_CLIENT_ID from above)                                                                      | `null`                            | `true` if `mode="platform.azure"` |
+| `platform.azure.tenantId`        | Azure AD tenant ID to be used with the pod.                                                                                                                      | `null`                            | `true` if `mode="platform.azure"` |
+| `platform.azure.keyVaultName`    | Name of the Azure Key Vault to be used for storing the agent secrets                                                                                             | `null`                            | `true` if `mode="platform.azure"` |
+| `podAnnotations`                 | https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/                                                                                   | `{}`                              | `false`                           |
+| `nodeSelector`                   | https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector                                                                            | `{}`                              | `false`                           |
+| `global.environment`             | Used for metadata of deployment                                                                                                                                  | `"onprem"`                        | `false`                           |
+| `agent.image.repository`         | Docker image repository                                                                                                                                          | `"ghcr.io/anycred/entitle-agent"` | `false`                           |
+| `agent.image.tag`                | Tag for docker image of agent                                                                                                                                    | `"master"`                        | `false`                           |
+| `agent.replicas`                 | Number of pods to run                                                                                                                                            | `1`                               | `false`                           |
+| `agent.resources.requests.cpu`   | CPU request for agent pod                                                                                                                                        | `"500m"`                          | `false`                           |
+| `agent.resources.requests.memory`| Memory request for agent pod                                                                                                                                     | `"1Gi"`                           | `false`                           |
+| `agent.resources.limits.cpu`     | CPU limit for agent pod                                                                                                                                          | `"1000m"`                         | `false`                           |
+| `agent.resources.limits.memory`  | Memory limit for agent pod                                                                                                                                       | `"3Gi"`                           | `false`                           |
+| `agent.token`                    | Credentials you've received upon agent installation (Contact us for more info)                                                                                   | `null`                            | `true`                            |
+| `datadog.providers.gke.autopilot`| Whether to enable autopilot or not                                                                                                                               | `false`                           | `false`                           |
+| `datadog.datadog.apiKey`         | Datadog API key                                                                                                                                                  | `null`                            | `true`                            |
+| `datadog.datadog.tags`           | Datadog Tag - Put your company name (https://docs.datadoghq.com/tagging/)                                                                                        | `null`                            | `true`                            |

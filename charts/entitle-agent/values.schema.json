@@ -12,11 +12,16 @@
     "kmsType": {
       "type": "string",
       "enum": [
+        "kubernetes_secret_manager",
         "aws_secret_manager",
         "gcp_secret_manager",
         "azure_secret_manager",
-        "hashicorp_vault"
+        "hashicorp_vault",
+        "MISSING_CUSTOMER_DATA"
       ]
+    },
+    "imageCredentials": {
+      "type": "string"
     },
     "externalKmsParams": {
       "type": "object",
@@ -49,7 +54,8 @@
             "gcp",
             "aws",
             "azure",
-            "none"
+            "native",
+            "MISSING_CUSTOMER_DATA"
           ]
         }
       },
@@ -139,19 +145,11 @@
     "agent": {
       "type": "object",
       "required": [
-        "mode",
+        "token",
         "image",
         "replicas"
       ],
       "properties": {
-        "mode": {
-          "type": "string",
-          "default": "kafka",
-          "enum": [
-            "kafka",
-            "websocket"
-          ]
-        },
         "replicas": {
           "type": "integer",
           "minimum": 1
@@ -199,43 +197,6 @@
             "repository",
             "tag"
           ]
-        }
-      },
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "kafka"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "kafka": {
-            "type": "object",
-            "required": [
-              "token"
-            ],
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "else": {
-        "properties": {
-          "websocket": {
-            "type": "object",
-            "required": [
-              "token"
-            ],
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            }
-          }
         }
       }
     }
