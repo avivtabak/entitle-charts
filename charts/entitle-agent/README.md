@@ -20,7 +20,7 @@ Kubernetes Secret Manager is the default secret manager even if your K8s cluster
 
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
 
-Eventually, you can install our Helm chart:
+Helm Chart installation:
 
 - `imageCredentials` and `agent.token` are given to you by Entitle
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
