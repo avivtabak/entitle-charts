@@ -24,7 +24,7 @@ Helm Chart installation:
 
 - `imageCredentials` and `agent.token` are given to you by Entitle
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
-- You can replace namespace `entitle` with your own namespace, but it's not recommended
+- You can replace namespace `entitle` with your own namespace, but it's highly discouraged
 
 ```shell
 export IMAGE_CREDENTIALS=<IMAGE_CREDENTIALS_FROM_ENTITLE>
@@ -284,7 +284,7 @@ Eventually, you can install our Helm chart:
 - `imageCredentials` and `agent.token` are given to you by Entitle
 - Replace `platform.aws.iamRole` with Entitle's AWS IAM Role you've created
 - Replace `<YOUR_ORG_NAME>` in `datadog.tags` to your company name
-- You can replace namespace `entitle` with your own namespace, but it's not recommended
+- You can replace namespace `entitle` with your own namespace, but it's highly discouraged
 - If you want to use hashicorp vault, set kmsType to `hashicorp_vault`
 
 ```shell
