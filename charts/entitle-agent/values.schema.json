@@ -12,11 +12,16 @@
     "kmsType": {
       "type": "string",
       "enum": [
+        "kubernetes_secret_manager",
         "aws_secret_manager",
         "gcp_secret_manager",
         "azure_secret_manager",
-        "hashicorp_vault"
+        "hashicorp_vault",
+        "MISSING_CUSTOMER_DATA"
       ]
+    },
+    "imageCredentials": {
+      "type": "string"
     },
     "externalKmsParams": {
       "type": "object",
@@ -49,7 +54,8 @@
             "gcp",
             "aws",
             "azure",
-            "none"
+            "native",
+            "MISSING_CUSTOMER_DATA"
           ]
         }
       },
