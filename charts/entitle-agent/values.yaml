@@ -47,9 +47,6 @@ agent:
   kafka:
     bootstrapServers:  # Kafka public bootstrap servers
 
-priorityClasses:
-  create: true
-
 ############################################################
 
 datadog:
