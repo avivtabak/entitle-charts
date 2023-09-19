@@ -15,7 +15,7 @@ helm repo add entitle https://anycred.github.io/entitle-charts/
 
 ## Kubernetes Secret Manager Installation (Default)
 
-### General note
+### General Note
 Kubernetes Secret Manager is the default secret manager even if your K8s cluster is hosted on GCP/AWS/Azure.
 
 ### [Chart Installation](https://helm.sh/docs/helm/helm_upgrade/)
