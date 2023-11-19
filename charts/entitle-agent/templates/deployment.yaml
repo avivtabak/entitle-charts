@@ -80,6 +80,16 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 3600
           timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+              - python
+              - /src/liveness_check/liveness_check.py
+          failureThreshold: 1
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 10
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
