@@ -1,0 +1,16 @@
+{{- if eq .Values.datadog.enabled false }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "entitle-agent.fullname" . }}-datadog-config
+data:
+  conf.yaml: |
+    init_config:
+    instances:
+    logs:
+      - type: file
+        path: /var/log/entitle-agent/entitle-agent.log
+        service: entitle-agent-onprem
+        source: entitle-agent
+        sourcecategory: sourcecode
+{{- end }}

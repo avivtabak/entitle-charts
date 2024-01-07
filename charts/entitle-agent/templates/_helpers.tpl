@@ -31,7 +31,7 @@ helm.sh/chart: {{ include "entitle-agent.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
+{{- end -}}
 
 {{/*
 Selector labels
@@ -55,8 +55,8 @@ Service account labels
 {{- define "entitle-agent.serviceAccountLabels" -}}
 {{- if eq .Values.platform.mode "azure" -}}
 azure.workload.identity/use: "true"
-{{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}
 */}}}}
 
 
