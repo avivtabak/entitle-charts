@@ -1,4 +1,4 @@
-{{- if eq .Values.datadog.daemonSet false }}
+{{- if eq .Values.datadog.enabled false }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
