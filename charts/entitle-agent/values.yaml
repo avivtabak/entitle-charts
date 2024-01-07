@@ -2,69 +2,71 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-imageCredentials: #Credentials you've received upon agent installation (Contact us for more info)
+imageCredentials: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
 
 platform:
-  mode: none
+  mode: "native"  # Cloud platform where Entitle is installed (Contact us for more info)
   aws:
-    iamRole: # IAM role for agent's service account annotations
+    iamRole:  # IAM role for agent's service account annotations
   gcp:
     serviceAccount:  # GKE service account for agent's service account annotations
     projectId:  # GCP project ID for agent's service account annotations
   azure:
-    clientId: # Azure AD application client ID to be used with the pod.
-    tenantId: # Azure AD tenant ID to be used with the pod.
-    keyVaultName: # Name of the Azure Key Vault to be used for storing the agent secret.
+    clientId:  # Azure AD application client ID to be used with the pod.
+    tenantId:  # Azure AD tenant ID to be used with the pod.
+    keyVaultName:  # Name of the Azure Key Vault to be used for storing the agent secret.
 
 
+podAnnotations: {}  # https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 
-podAnnotations: {} # https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+nodeSelector: {}  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 
-nodeSelector: {} # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+affinity: {}  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
 
-kmsType:
+tolerations: []  # https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+
+kmsType: "MISSING_CUSTOMER_DATA"  # Key Management Service to store internal Entitle secrets (Contact us for more info)
 
 externalKmsParams:
   hashicorp:
-    connectionString: # example: "https://<token>@1.2.3.4:8200"
+    connectionString:  # example: "https://<token>@1.2.3.4:8200"
 
 global:
-  environment: "onprem" # Used for metadata of deployment
+  environment: "onprem"  # Used for metadata of deployment
 
 agent:
+  token: "MISSING_CUSTOMER_DATA"  # Credentials you've received upon agent installation (Contact us for more info)
   image:
-    repository: ghcr.io/anycred/entitle-agent # Docker image repository
-    tag: latest # Tag for docker image of agent
-  mode: "kafka" # Take values from: [kafka, websocket]
-  replicas: 3 # Number of pods to run
+    repository: ghcr.io/anycred/entitle-agent  # Docker image repository
+    tag: latest  # Tag for docker image of agent
+
+  replicas: 3  # Number of pods to run
   resources:
     requests:
-      cpu: 1000m # CPU request for agent pod
-      memory: 1Gi # Memory request for agent pod
+      cpu: 1000m  # CPU request for agent pod
+      memory: 1Gi  # Memory request for agent pod
     limits:
-      cpu: 5000m # CPU limit for agent pod
-      memory: 3Gi # Memory limit for agent pod
-  websocket:
-    token: # Deprecated [backward compatibility] Token you've received upon agent installation (Contact us for more info)
+      cpu: 5000m  # CPU limit for agent pod
+      memory: 3Gi  # Memory limit for agent pod
   kafka:
     bootstrapServers:  # Kafka public bootstrap servers
-    token: "" # Credentials you've received upon agent installation (Contact us for more info)
 
 ############################################################
+
 datadog:
-  daemonSet: false # Enable Datadog integration
+  enabled: true  # Enable Datadog logging
   ## This is the Datadog Cluster Agent implementation that handles cluster-wide
   ## metrics more cleanly, separates concerns for better rbac, and implements
   ## the external metrics API so you can autoscale HPAs based on datadog metrics
   ## ref: https://docs.datadoghq.com/agent/kubernetes/cluster/
   providers:
     gke:
-      autopilot: false #Whether to enable autopilot or not
+      autopilot: false  # Whether to enable autopilot or not
   clusterAgent:
     # clusterAgent.enabled -- Set this to false to disable Datadog Cluster Agent
     enabled: false
   datadog:
-    apiKey: # Datadog API key
+    apiKey:  # Datadog API key
     # datadog.tags -- List of static tags to attach to every metric, event and service check collected by this Agent.
     ## Learn more about tagging: https://docs.datadoghq.com/tagging/
     tags: []

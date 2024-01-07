@@ -44,26 +44,6 @@ spec:
               name: {{ include "entitle-agent.fullname" . }}-hashicorp-vault-secret
               key: HASHICORP_VAULT_CONNECTION_STRING
         {{- end }}
-        {{- if eq .Values.datadog.daemonSet false }}
-        - name: ENTITLE_LOG_TO_FILE
-          value: "true"
-{{/*          TODO:remove*/}}
-        - name: ENV_FOR_DYNACONF
-          value: "development"
-        - name: ENTITLE_LOG_FILE
-          value: /var/log/entitle-agent/entitle-agent.log
-        {{- end }}
-        {{- if eq .Values.agent.mode "websocket" }}
-        - name: TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: {{ include "entitle-agent.fullname" . }}-secret
-              key: TOKEN
-        - name: KMS_TYPE
-          value: {{ .Values.kmsType }}
-        {{- else }}
-        - name: ENTITLE_WEBSOCKET_ENABLED
-          value: "false"
         - name: ENTITLE_KMS_TYPE
           value: {{ .Values.kmsType }}
         {{- if .Values.agent.kafka.bootstrapServers }}
@@ -76,12 +56,11 @@ spec:
               name: {{ include "entitle-agent.fullname" . }}-secret
               key: ENTITLE_JSON_CONFIGURATION
               optional: false
-        {{- end }}
         {{- if eq .Values.platform.mode "azure" }}
         - name: AZURE_KEY_VAULT_NAME
           value: {{ .Values.platform.azure.keyVaultName }}
         {{- end }}
-        {{- if eq .Values.datadog.daemonSet false }}
+        {{- if eq .Values.datadog.enabled false }}
         - name: ENTITLE_LOG_TO_FILE
           value: "true"
         {{- end }}
@@ -95,7 +74,31 @@ spec:
         volumeMounts:
           - mountPath: /var/log/entitle-agent
             name: entitle-agent-logs
-      {{- if eq .Values.datadog.daemonSet false }}
+        startupProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck/healthcheck.py
+          timeoutSeconds: 30
+        livenessProbe:
+          exec:
+            command:
+              - python
+              - scripts/healthcheck/healthcheck.py
+          initialDelaySeconds: 30
+          periodSeconds: 3600
+          timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+              - python
+              - /src/liveness_check/liveness_check.py
+          failureThreshold: 1
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 10
+      {{- if eq .Values.datadog.enabled false }}
       - name: datadog-agent
         image: gcr.io/datadoghq/agent:latest
         imagePullPolicy: Always
@@ -134,10 +137,18 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: entitle-agent-logs
           emptyDir: {}
-        {{- if eq .Values.datadog.daemonSet false }}
+        {{- if eq .Values.datadog.enabled false }}
         - name: datadog-configmap
           configMap:
             name: {{ include "entitle-agent.fullname" . }}-datadog-config
