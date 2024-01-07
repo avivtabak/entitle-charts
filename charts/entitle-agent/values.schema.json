@@ -217,12 +217,12 @@
         "type": "object",
         "required": [
           "apiKey",
-          "daemonSet"
+          "enabled"
         ],
         "properties": {
-          "daemonSet": {
+          "enabled": {
             "type": "boolean",
-            "default": false
+            "default": true
           },
           "apiKey": {
             "type": "string"
