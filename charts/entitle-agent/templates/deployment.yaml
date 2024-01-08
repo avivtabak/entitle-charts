@@ -19,6 +19,7 @@ spec:
     metadata:
       annotations:
         checksum/docker-login: {{ include (print $.Template.BasePath "/docker-login.yaml") . | sha256sum }}
+        checksum/datadog-config: {{ include (print $.Template.BasePath "/datadog-configmap.yaml") . | sha256sum }}
         ad.datadoghq.com/{{ include "entitle-agent.fullname" . }}.logs: '[{"source": "{{ include "entitle-agent.fullname" . }}"}]'
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -59,12 +60,21 @@ spec:
         - name: AZURE_KEY_VAULT_NAME
           value: {{ .Values.platform.azure.keyVaultName }}
         {{- end }}
+        {{- if not .Values.datadog.enabled }}
+        - name: ENTITLE_LOG_TO_FILE
+          value: "true"
+        {{- end }}
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: Always
         name: {{ include "entitle-agent.fullname" . }}
         {{- with .Values.agent.resources }}
         resources:
           {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if not .Values.datadog.enabled }}
+        volumeMounts:
+          - mountPath: /var/log/entitle-agent
+            name: entitle-agent-logs
         {{- end }}
         startupProbe:
           exec:
@@ -90,6 +100,39 @@ spec:
           periodSeconds: 60
           successThreshold: 1
           timeoutSeconds: 10
+      {{- if not .Values.datadog.enabled }}
+      - name: datadog-agent
+        image: gcr.io/datadoghq/agent:latest
+        imagePullPolicy: Always
+        env:
+          - name: DD_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "entitle-agent.fullname" . }}-datadog-secret
+                key: DD_API_KEY
+          - name: DD_TAGS
+            value: {{.Values.datadog.datadog.tags | quote}}
+          - name: DD_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: DD_LOGS_ENABLED
+            value: "true"
+          - name: DD_LOG_LEVEL
+            value: "debug"
+          # Disables Kubernetes metrics collection (DO NOT REMOVE)
+          - name: KUBERNETES
+            value: ""
+          - name: KUBERNETES_SERVICE_PORT
+            value: ""
+          # Disables Kubernetes metrics collection (DO NOT REMOVE)
+        volumeMounts:
+          - name: datadog-configmap
+            mountPath: /conf.d/python.d
+          - name: entitle-agent-logs
+            mountPath: /var/log/entitle-agent
+            readOnly: true
+      {{- end }}
       imagePullSecrets:
         - name: {{ include "entitle-agent.fullname" . }}-docker-login
       {{- with .Values.nodeSelector }}
@@ -104,4 +147,12 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: entitle-agent-logs
+          emptyDir: {}
+        {{- if not .Values.datadog.enabled }}
+        - name: datadog-configmap
+          configMap:
+            name: {{ include "entitle-agent.fullname" . }}-datadog-config
+        {{- end }}
       serviceAccountName: {{ include "entitle-agent.serviceAccountName" .}}

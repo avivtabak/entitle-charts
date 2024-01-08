@@ -216,9 +216,14 @@
       "datadog": {
         "type": "object",
         "required": [
-          "apiKey"
+          "apiKey",
+          "enabled"
         ],
         "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
           "apiKey": {
             "type": "string"
           }
